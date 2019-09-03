@@ -1,0 +1,273 @@
+﻿ÁFRICA DEL NORTE Paises:4    Total Proyectos: 4    Total Convenios: 0    Total Fondos: 231.328,0€
+...África del Norte sin localizar	1 proyectos / 0 convenios / 25.000,0€		
+Egipto	1 proyectos / 0 convenios / 39.296,0€		
+Marruecos	1 proyectos / 0 convenios / 104.411,0€	
+Infancia
+Mujeres
+Población en general
+Educación
+Género
+Salud
+Túnez	1 proyectos / 0 convenios / 62.621,0€		
+ÁFRICA SUBSAHARIANA Paises:22    Total Proyectos: 22    Total Convenios: 0    Total Fondos: 4.420.103,0€
+...África Subsahariana sin localizar	1 proyectos / 0 convenios / 195.586,0€		
+Angola	1 proyectos / 0 convenios / 107.097,0€	
+Infancia
+Población en general
+Agua y saneamiento
+Educación
+Salud
+Benin	1 proyectos / 0 convenios / 13.000,0€	
+Mujeres
+Población en general
+Acción humanitaria / emergencia
+Microcréditos
+Burkina Faso	1 proyectos / 0 convenios / 115.716,0€	
+Población en general
+Burundi	1 proyectos / 0 convenios / 15.000,0€		
+Camerún	1 proyectos / 0 convenios / 174.519,0€	
+Infancia
+Población en general
+Acción humanitaria / emergencia
+Educación
+Chad	1 proyectos / 0 convenios / 212.542,0€	
+Infancia
+Población en general
+Acción humanitaria / emergencia
+Educación
+Congo ,Rep	1 proyectos / 0 convenios / 792.420,0€	
+Población en general
+Acción humanitaria / emergencia
+Eritrea	1 proyectos / 0 convenios / 197.954,0€	
+Mujeres
+Población en general
+Agua y saneamiento
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Etiopía	1 proyectos / 0 convenios / 414.607,0€	
+Infancia
+Mujeres
+Población en general
+Acción humanitaria / emergencia
+Educación
+Salud
+Nutricion,
+Kenia	1 proyectos / 0 convenios / 10.475,0€	
+Población en general
+Acción humanitaria / emergencia
+Gobierno y sociedad civil
+Salud
+Malí	1 proyectos / 0 convenios / 260.208,0€		
+Mauritania	1 proyectos / 0 convenios / 113.959,0€	
+Población en general
+Acción humanitaria / emergencia
+Educación
+Género
+Salud
+Mozambique	1 proyectos / 0 convenios / 1.036.458,0€	
+Infancia
+Población en general
+Educación
+Níger	1 proyectos / 0 convenios / 22.000,0€	
+Población en general
+Acción humanitaria / emergencia
+Agua y saneamiento
+Alimentación
+R.D. Congo	1 proyectos / 0 convenios / 145.831,0€	
+Población en general
+Acción humanitaria / emergencia
+Agua y saneamiento
+Educación
+Salud
+Rwanda	1 proyectos / 0 convenios / 319.028,0€	
+Infancia
+Mujeres
+Población en general
+Acción humanitaria / emergencia
+Educación
+Género
+Salud
+Senegal	1 proyectos / 0 convenios / 65.000,0€		
+Sudán	1 proyectos / 0 convenios / 128.001,0€	
+Infancia
+Jóvenes
+Población en general
+Acción humanitaria / emergencia
+Agua y saneamiento
+Alimentación
+Educación
+Salud
+Tanzania	1 proyectos / 0 convenios / 3.500,0€		
+Uganda	1 proyectos / 0 convenios / 9.927,0€		
+Zimbabwe	1 proyectos / 0 convenios / 67.275,0€	
+Población en general
+AMÉRICA CENTRAL, NORTE Y CARIBE Paises:10    Total Proyectos: 10    Total Convenios: 0    Total Fondos: 4.027.106,0€
+Costa Rica	1 proyectos / 0 convenios / 64.683,0€		
+Cuba	1 proyectos / 0 convenios / 169.400,0€	
+Infancia
+Población en general
+Educación
+Salud
+El Salvador	1 proyectos / 0 convenios / 1.323.808,0€	
+Población en general
+Acción humanitaria / emergencia
+Codesarrollo
+Salud
+Guatemala	1 proyectos / 0 convenios / 365.417,0€	
+Infancia
+Población en general
+Acción humanitaria / emergencia
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Haití	1 proyectos / 0 convenios / 339.251,0€	
+Infancia
+Educación
+Salud
+Honduras	1 proyectos / 0 convenios / 440.351,0€	
+Población en general
+Mexico	1 proyectos / 0 convenios / 352.814,0€		
+Educación
+Gobierno y sociedad civil
+Nicaragua	1 proyectos / 0 convenios / 370.902,0€	
+Mujeres
+Población en general
+Educación
+Gobierno y sociedad civil
+Panamá	1 proyectos / 0 convenios / 63.917,0€		
+Educación
+Fortalecimiento institucional
+Rep. Dominicana	1 proyectos / 0 convenios / 536.563,0€	
+Población en general
+Agua y saneamiento
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+AMÉRICA DEL SUR Paises:10    Total Proyectos: 10    Total Convenios: 0    Total Fondos: 7.068.156,0€
+...América del Sur sin localizar	1 proyectos / 0 convenios / 85.055,0€		
+Argentina	1 proyectos / 0 convenios / 45.500,0€	
+Infancia
+Población en general
+Acción humanitaria / emergencia
+Educación
+Bolivia	1 proyectos / 0 convenios / 1.003.478,0€	
+Infancia
+Mujeres
+Población en general
+Acción humanitaria / emergencia
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Brasil	1 proyectos / 0 convenios / 191.350,0€	
+Población en general
+Acción humanitaria / emergencia
+Microcréditos
+Colombia	1 proyectos / 0 convenios / 793.986,0€	
+Infancia
+Población en general
+Acción humanitaria / emergencia
+Educación
+Salud
+Ecuador	1 proyectos / 0 convenios / 1.380.045,0€	
+Infancia
+Mujeres
+Población en general
+Acción humanitaria / emergencia
+Educación
+Género
+Microcréditos
+Paraguay	1 proyectos / 0 convenios / 30.263,0€		
+Perú	1 proyectos / 0 convenios / 3.379.159,0€	
+Infancia
+Jóvenes
+Población en general
+Acción humanitaria / emergencia
+Educación
+Salud
+Uruguay	1 proyectos / 0 convenios / 150.500,0€	
+Población en general
+Acción humanitaria / emergencia
+Participacion comunitaria
+Venezuela	1 proyectos / 0 convenios / 8.820,0€	
+Población en general
+Acción humanitaria / emergencia
+Educación
+Gobierno y sociedad civil
+ASIA Paises:13    Total Proyectos: 12    Total Convenios: 0    Total Fondos: 4.260.461,0€
+...Asia sin localizar	1 proyectos / 0 convenios / 27.500,0€		
+Armenia	1 proyectos / 0 convenios / 171.435,0€	
+Población en general
+Educación
+Salud
+Bangladesh	1 proyectos / 0 convenios / 200.839,0€		
+Camboya	1 proyectos / 0 convenios / 268.114,0€	
+Infancia
+Población en general
+Educación
+Salud
+China	1 proyectos / 0 convenios / 25.000,0€		
+Filipinas	1 proyectos / 0 convenios / 70.689,0€	
+Población en general
+Acción humanitaria / emergencia
+Educación
+Fortalecimiento institucional
+Georgia	1 proyectos / 0 convenios / 137.000,0€	
+Población en general
+India	1 proyectos / 0 convenios / 1.197.409,0€	
+Población en general
+Acción humanitaria / emergencia
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Indonesia	1 proyectos / 0 convenios / 718.538,0€	
+Población en general
+Acción humanitaria / emergencia
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Myanmar	1 proyectos / 0 convenios / 175.000,0€		
+Nepal	1 proyectos / 0 convenios / 15.000,0€		
+Pakistán	0 proyectos / 0 convenios / 103.937,0€	
+Población en general
+Acción humanitaria / emergencia
+Sri Lanka	1 proyectos / 0 convenios / 1.150.000,0€	
+Población en general
+Educación
+EUROPA CENTRAL Y DEL ESTE Paises:8    Total Proyectos: 8    Total Convenios: 0    Total Fondos: 797.000,0€
+...Europa Central y del Este sin localizar	1 proyectos / 0 convenios / 10.000,0€		
+Albania	1 proyectos / 0 convenios / 216.000,0€	
+Población en general
+Salud
+Bulgaria	1 proyectos / 0 convenios / 93.000,0€	
+Población en general
+Acción humanitaria / emergencia
+Gobierno y sociedad civil
+Rumania	1 proyectos / 0 convenios / 3.000,0€	
+Población en general
+Acción humanitaria / emergencia
+Producción (agricultura-ganadería; tejido productivo)
+Rusia	1 proyectos / 0 convenios / 77.000,0€	
+Infancia
+Población en general
+Educación
+Gobierno y sociedad civil
+Serbia y Montenegro	1 proyectos / 0 convenios / 210.000,0€		
+Turquia	1 proyectos / 0 convenios / 33.000,0€	
+Infancia
+Mujeres
+Población en general
+Acción humanitaria / emergencia
+Educación
+Género
+Ucrania	1 proyectos / 0 convenios / 155.000,0€	
+Población en general
+Gobierno y sociedad civil
+ORIENTE MEDIO Paises:4    Total Proyectos: 4    Total Convenios: 0    Total Fondos: 560.344,0€
+Irak	1 proyectos / 0 convenios / 15.000,0€	
+Población en general
+Israel	1 proyectos / 0 convenios / 2.400,0€		
+Líbano	1 proyectos / 0 convenios / 26.573,0€	
+Población en general
+Acción humanitaria / emergencia
+Salud
+Territorios Palestinos	1 proyectos / 0 convenios / 516.371,0€

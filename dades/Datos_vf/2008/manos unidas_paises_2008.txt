@@ -1,0 +1,501 @@
+﻿ÁFRICA DEL NORTE Paises:2    Total Proyectos: 4    Total Convenios: 0    Total Fondos: 311.880,0€
+Argelia	1 proyectos / 0 convenios / 14.697,0€	
+Jóvenes
+Educación
+Marruecos	3 proyectos / 0 convenios / 297.183,0€	
+Mujeres
+Población en general
+Población rural
+Agua y saneamiento
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+ÁFRICA SUBSAHARIANA Paises:30    Total Proyectos: 301    Total Convenios: 2    Total Fondos: 18.643.519,0€
+Angola	15 proyectos / 0 convenios / 751.349,0€	
+Infancia
+Jóvenes
+Mujeres
+Población indígena/minorías étnicas
+Población rural
+Acción humanitaria / emergencia
+Alimentación
+Codesarrollo
+Derechos Humanos
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Social
+Benin	13 proyectos / 0 convenios / 429.954,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Burkina Faso	19 proyectos / 0 convenios / 703.307,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Acción humanitaria / emergencia
+Alimentación
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Social
+Burundi	8 proyectos / 0 convenios / 353.377,0€	
+Infancia
+Jóvenes
+Población rural
+Agua y saneamiento
+Educación
+Social
+Camerún	21 proyectos / 0 convenios / 1.332.487,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población rural
+Agua y saneamiento
+Alimentación
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Social
+Chad	1 proyectos / 0 convenios / 238.925,0€	
+Población rural
+Habitabilidad
+Costa de Marfil	12 proyectos / 0 convenios / 522.064,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Agua y saneamiento
+Educación
+Salud
+Eritrea	1 proyectos / 0 convenios / 42.803,0€	
+Mujeres
+Género
+Etiopía	10 proyectos / 1 convenios / 2.628.006,0€	
+Infancia
+Jóvenes
+Población con discapacidad
+Población en general
+Población rural
+Agua y saneamiento
+Educación
+Género
+Gobierno y sociedad civil
+Salud
+Ghana	11 proyectos / 0 convenios / 918.048,0€	
+Infancia
+Jóvenes
+Población rural
+Agua y saneamiento
+Educación
+Salud
+Kenia	17 proyectos / 0 convenios / 1.018.950,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población rural
+Refugiados/as
+Acción humanitaria / emergencia
+Agua y saneamiento
+Derechos Humanos
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Madagascar	10 proyectos / 0 convenios / 258.030,0€	
+Infancia
+Jóvenes
+Población en general
+Población rural
+Educación
+Género
+Habitabilidad
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Malawi	11 proyectos / 0 convenios / 522.485,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Refugiados/as
+Agua y saneamiento
+Educación
+Género
+Salud
+Malí	8 proyectos / 0 convenios / 540.590,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Educación
+Género
+Gobierno y sociedad civil
+Salud
+Mauritania	10 proyectos / 0 convenios / 571.364,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Refugiados/as
+Acción humanitaria / emergencia
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Mozambique	6 proyectos / 0 convenios / 542.294,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Nigeria	8 proyectos / 0 convenios / 384.148,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población rural
+Agua y saneamiento
+Derechos Humanos
+Educación
+Género
+Salud
+R.D. Congo	27 proyectos / 0 convenios / 1.452.419,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población rural
+Acción humanitaria / emergencia
+Agua y saneamiento
+Derechos Humanos
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Rep. Centroafricana	2 proyectos / 0 convenios / 68.466,0€	
+Jóvenes
+Educación
+Rwanda	11 proyectos / 0 convenios / 635.910,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Agua y saneamiento
+Educación
+Género
+Salud
+Senegal	7 proyectos / 1 convenios / 1.456.090,0€	
+Infancia
+Mujeres
+Población rural
+Educación
+Género
+Salud
+Sierra Leona	9 proyectos / 0 convenios / 452.384,0€	
+Jóvenes
+Mujeres
+Población rural
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Somalia	1 proyectos / 0 convenios / 17.392,0€	
+Población rural
+Refugiados/as
+Salud
+Sudáfrica	1 proyectos / 0 convenios / 59.080,0€	
+Población rural
+Derechos Humanos
+Sudán	3 proyectos / 0 convenios / 338.037,0€	
+Infancia
+Población rural
+Refugiados/as
+Educación
+Tanzania	19 proyectos / 0 convenios / 604.443,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Refugiados/as
+Agua y saneamiento
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Togo	6 proyectos / 0 convenios / 305.563,0€	
+Jóvenes
+Mujeres
+Población rural
+Agua y saneamiento
+Educación
+Género
+Salud
+Uganda	25 proyectos / 0 convenios / 1.007.535,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Agua y saneamiento
+Derechos Humanos
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Zambia	6 proyectos / 0 convenios / 279.622,0€	
+Infancia
+Jóvenes
+Población rural
+Agua y saneamiento
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Zimbabwe	3 proyectos / 0 convenios / 208.397,0€	
+Infancia
+Jóvenes
+Población rural
+Agua y saneamiento
+Educación
+AMÉRICA CENTRAL, NORTE Y CARIBE Paises:8    Total Proyectos: 82    Total Convenios: 0    Total Fondos: 4.496.754,0€
+El Salvador	7 proyectos / 0 convenios / 461.988,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Refugiados/as
+Derechos Humanos
+Género
+Gobierno y sociedad civil
+Producción (agricultura-ganadería; tejido productivo)
+Guatemala	12 proyectos / 0 convenios / 1.500.015,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Haití	34 proyectos / 0 convenios / 1.271.285,0€	
+Infancia
+Jóvenes
+Mujeres
+Población rural
+Acción humanitaria / emergencia
+Agua y saneamiento
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Honduras	3 proyectos / 0 convenios / 84.801,0€	
+Jóvenes
+Población rural
+Acción humanitaria / emergencia
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Mexico	6 proyectos / 0 convenios / 163.393,0€	
+Infancia
+Jóvenes
+Mujeres
+Población indígena/minorías étnicas
+Población rural
+Refugiados/as
+Derechos Humanos
+Educación
+Género
+Salud
+Nicaragua	8 proyectos / 0 convenios / 410.352,0€	
+Infancia
+Jóvenes
+Población rural
+Agua y saneamiento
+Educación
+Gobierno y sociedad civil
+Medioambiente
+Producción (agricultura-ganadería; tejido productivo)
+Panamá	4 proyectos / 0 convenios / 268.207,0€	
+Infancia
+Mujeres
+Población indígena/minorías étnicas
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Rep. Dominicana	8 proyectos / 0 convenios / 336.713,0€	
+Infancia
+Jóvenes
+Población en general
+Población rural
+Codesarrollo
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+AMÉRICA DEL SUR Paises:6    Total Proyectos: 109    Total Convenios: 1    Total Fondos: 10.943.151,0€
+Bolivia	17 proyectos / 1 convenios / 2.462.085,0€	
+Infancia
+Jóvenes
+Mujeres
+Población indígena/minorías étnicas
+Población rural
+Acción humanitaria / emergencia
+Agua y saneamiento
+Género
+Gobierno y sociedad civil
+Infraestructura económica y de servicios
+Medioambiente
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Brasil	25 proyectos / 0 convenios / 2.614.191,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población indígena/minorías étnicas
+Población rural
+Agua y saneamiento
+Derechos Humanos
+Educación
+Género
+Habitabilidad
+Medioambiente
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Colombia	13 proyectos / 0 convenios / 595.370,0€	
+Jóvenes
+Mujeres
+Población rural
+Refugiados/as
+Derechos Humanos
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Ecuador	20 proyectos / 0 convenios / 1.580.116,0€	
+Jóvenes
+Mujeres
+Población indígena/minorías étnicas
+Población rural
+Acción humanitaria / emergencia
+Agua y saneamiento
+Derechos Humanos
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Paraguay	7 proyectos / 0 convenios / 360.831,0€	
+Mujeres
+Población en general
+Población indígena/minorías étnicas
+Población rural
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Perú	27 proyectos / 0 convenios / 3.330.558,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población indígena/minorías étnicas
+Población rural
+Acción humanitaria / emergencia
+Agua y saneamiento
+Alimentación
+Derechos Humanos
+Educación
+Género
+Gobierno y sociedad civil
+Medioambiente
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+ASIA Paises:8    Total Proyectos: 270    Total Convenios: 1    Total Fondos: 13.136.352,0€
+Bangladesh	2 proyectos / 0 convenios / 125.342,0€	
+Población indígena/minorías étnicas
+Educación
+Camboya	5 proyectos / 0 convenios / 723.099,0€	
+Mujeres
+Población rural
+Género
+Salud
+Filipinas	11 proyectos / 1 convenios / 1.410.957,0€	
+Jóvenes
+Población indígena/minorías étnicas
+Población rural
+Agua y saneamiento
+Derechos Humanos
+Educación
+Medioambiente
+India	215 proyectos / 0 convenios / 9.656.438,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Población rural
+Refugiados/as
+Acción humanitaria / emergencia
+Agua y saneamiento
+Alimentación
+Codesarrollo
+Derechos Humanos
+Educación
+Género
+Medioambiente
+Microcréditos
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Myanmar	15 proyectos / 0 convenios / 461.028,0€	
+Infancia
+Jóvenes
+Población en general
+Población rural
+Acción humanitaria / emergencia
+Agua y saneamiento
+Educación
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+Sri Lanka	3 proyectos / 0 convenios / 64.558,0€	
+Infancia
+Jóvenes
+Educación
+Tailandia	3 proyectos / 0 convenios / 325.977,0€	
+Infancia
+Población rural
+Refugiados/as
+Derechos Humanos
+Género
+Vietnam	16 proyectos / 0 convenios / 368.953,0€	
+Jóvenes
+Mujeres
+Población rural
+Derechos Humanos
+Educación
+Género
+Producción (agricultura-ganadería; tejido productivo)
+Salud
+OCEANÍA Paises:1    Total Proyectos: 2    Total Convenios: 0    Total Fondos: 96.040,0€
+Papúa-Nueva Guinea	2 proyectos / 0 convenios / 96.040,0€	
+Jóvenes
+Población rural
+Educación
+ORIENTE MEDIO Paises:4    Total Proyectos: 6    Total Convenios: 0    Total Fondos: 345.451,0€
+Irak	1 proyectos / 0 convenios / 25.000,0€	
+Población en general
+Salud
+Israel	1 proyectos / 0 convenios / 20.000,0€	
+Infancia
+Mujeres
+Educación
+Líbano	3 proyectos / 0 convenios / 140.451,0€	
+Infancia
+Jóvenes
+Mujeres
+Población en general
+Educación
+Género
+Territorios Palestinos	1 proyectos / 0 convenios / 160.000,0€
