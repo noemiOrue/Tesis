@@ -232,9 +232,6 @@ for i in range(0,len(PC_subvenciones)):
             
             ong_nom = unicodedata.normalize('NFD', info["ONGD"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
             ong_nom = revisionNombres(ong_nom)
-            if ong_nom == "acción contra el hambre":
-                print("--------")
-                print(info)
             
             if ong_nom not in ong:
                 ong[ong_nom] = {}
@@ -245,7 +242,7 @@ for i in range(0,len(PC_subvenciones)):
             if "SUBVENCIONES" not in ong[ong_nom][info['Año de Adjudicación']] :
                 ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"] = {}
             if info["Importe total subvención (€)"]!="RENUNCIA":
-                if " y " in info['País']: print(info["País"])
+                
                 paisos = info['País'].replace(' y ', ' , ').replace(".","").split(',')
                 
                 for j in range(len(paisos)):
@@ -295,7 +292,7 @@ for i in range(0,len(PC_Acciones)):
                         dinerosEspanya[info['Año de Adjudicación']][pais]+=float(info["Importe total subvención (€)"])/len(paisos)
 
                     else:
-                        print(pais)
+                        pass
 
 #ingresos ong 2014 a 2015 ["INGRESOS"]
 
@@ -788,7 +785,6 @@ for i in range(0,len(proyectos)):
         info = info.replace("n/i",0)
         ong_nom = unicodedata.normalize('NFD', info["ong"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
         ong_nom = revisionNombres(ong_nom)
-        print(ong_nom)
         if ong_nom not in ong:
             ong[ong_nom] = {}
         if 2009 not in ong[ong_nom]:
@@ -940,8 +936,6 @@ for root, dirs, files in os.walk(path):
         if 2010 not in ong[ong_nom]:
             ong[ong_nom][2010] = {}
         if "Fondos privados" in info:
-            if "iberoamerica" in ong_nom:
-                print(ong_nom)
             ong[ong_nom][2010]["INGRESOS"] = {}
         
             posMoney = -1
@@ -1083,7 +1077,7 @@ for root, dirs, files in os.walk(path):
                         if pais in paises:
                             paises_proyecto.append(pais)
                         else:
-                            print("break",pais)
+                            
                             break
                         
                 for pais in paises_proyecto:
@@ -1101,7 +1095,7 @@ for root, dirs, files in os.walk(path):
                 for el2 in el:
                     info.append(el2)
         except:
-            print("ERROR DE LECTURA")
+            
             typeLectura = 1
             file= csv.reader(open(path+filename,"r",encoding="latin-1"), delimiter='\t',quoting=csv.QUOTE_NONE)
             info = []
@@ -1120,7 +1114,7 @@ for root, dirs, files in os.walk(path):
             j=0
             while j < len(info):
                 pais= revisionPaises(unicodedata.normalize('NFD', info[j].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )
-                print(pais, pais in paises)
+                
                 if pais in paises or "sin localizar" in pais:
                     llistatPaisos = []
                     llistatPaisos.append(pais)
@@ -1140,7 +1134,7 @@ for i in range(len(onu)):
     info = onu.iloc[i]
     pais_onu = revisionPaises(unicodedata.normalize('NFD', info["PAÍS"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") ) 
     for year in onu.columns[1:]:    
-        print(year)
+        
         if pais_onu not in paises_ONU:
             paises_ONU[pais_onu] = {}
             paises_ONU[pais_onu]["ONU"] = {}
@@ -1154,7 +1148,7 @@ for i in range(len(file)):
     if isinstance(info["Country Name"], str):
         pais_onu = revisionPaises(unicodedata.normalize('NFD', info["Country Name"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") ) 
         #str(info["Country Name"]).lower().strip()
-        print(pais_onu)
+        
         if pais_onu not in paises_ONU:
             paises_ONU[pais_onu] = {}
         paises_ONU[pais_onu]["money"] = {}
@@ -1176,7 +1170,7 @@ mision.columns = header
 for i in range(len(mision)):    
     info = mision.iloc[i]
     ongd = revisionNombres(unicodedata.normalize('NFD', info["ONGD"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )
-    print(ongd)
+    
     if ongd not in ong:
         ong[ongd] = {}
     ong[ongd]["priorizacion"] = [info[1],info[2],info[3],info[4]]
@@ -1188,16 +1182,12 @@ for i in range(len(mision)):
     info = mision.iloc[i]
     ongd = revisionNombres(unicodedata.normalize('NFD', info["Nombre"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )    
     ongd = revisionNombres(ongd)
-    print(ongd)
+    
     if ongd not in ong:
         ong[ongd] = {}
     ong[ongd]["info"] = [info[4]]
 
 import xlsxwriter
-
-for el in ong:
-    if "cipie" in el:
-        print(el)
 
 ongsFer = ["acción contra el hambre","cruz roja","cáritas","oxfam intermon","ayuda en acción","acción verapaz","medicus mundi","manos unidas"]
 ongsFer = ongsFer + ["edificando comunidad de nazaret","farmamundi","cesal","codespa","alboan","aieti","fad", "adsis","educo","economistas sin fronteras"]
@@ -1205,15 +1195,10 @@ ongsFer = ongsFer + ["amref","farmaceuticos sin fronteras","adra","amigos de la 
 ongsFer = ongsFer + ["mundubat","paz con dignidad","prosalus","sed","iscod","medicos del mundo","jovenes y desarrollo","mpdl","entrepueblos","cideal","fundación valle"]
 ongsFer = ongsFer + ["frs","entreculturas","iberoamerica europa","fuden","promoción social","proyde","pueblos hermanos"]
 
-for el in ongsFer:
-    print(el,ongsFer.count(el))
-
-len(set(ongsFer))
-qFer = 0
 for ong_nom in ongsFer:
     
     posExcel = 1
-    workbook = xlsxwriter.Workbook("C:/Users/bcoma/Documents/Noemi/Tesis/tesis/output/"+str(ong_nom)+".xlsx")
+    workbook = xlsxwriter.Workbook("./output/"+str(ong_nom)+".xlsx")
     worksheet = workbook.add_worksheet()
     worksheet.set_column('A:A', 20)
     bold = workbook.add_format({'bold': True})
@@ -1433,7 +1418,7 @@ for ong_nom in ongsFer:
                         worksheet.write(posExcel, 35,ong[ong_nom][year]["PROYECTOS"][pais])
                         posExcel+=1
                     else:
-                        print(pais,year,ong_nom)
+                        pass
     workbook.close()       
                 
 pickle.dump(ong, open( "./ong.p", "wb" ) )
