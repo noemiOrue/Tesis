@@ -24,9 +24,6 @@ def ndcg_at_k(r,rBest, k):
         return 0.
     return dcg_at_k(r, k) / dcg_max
 
-
-
-
 #leemos excels
 training = {}
 path = './output/'
@@ -38,12 +35,12 @@ for root, dirs, files in os.walk(path):
 
 pickle.dump(training, open( "./trainingONG.p", "wb" ) )
 
-training_years = {} #proporcio public/privat
+training_years = {} #proporcion publico/privado
 dinerosONG = {}
-espanya_subvenciones = {} ##llistat de paisos subvencionats per any
-espanya_subvenciones_dinero = {} ##quantitat de diners subvencio per pais i any
-anualMAE = {}
-anualPrivados = {}
+espanya_subvenciones = {} #listado de paises subvencionados por españa cada año
+espanya_subvenciones_dinero = {} #cantidad de dinero en las subvenciones
+anualMAE = {} #dinero anual  MAE
+anualPrivados = {} #dinero anual privado 
 
 for ong in training:
     training_years[ong] = {}
@@ -51,7 +48,6 @@ for ong in training:
     anualMAE[ong] = {}
     anualPrivados[ong] = {}
     for rowPos in range(len(training[ong])):
-
         #subvenciones
         if training[ong].iloc[[rowPos]].index[0][0:4] not in espanya_subvenciones:
             espanya_subvenciones[training[ong].iloc[[rowPos]].index[0][0:4]] = []
@@ -76,9 +72,21 @@ for ong in training:
             training_years[ong][training[ong].iloc[[rowPos]].index[0][0:4]]["publico"]= training[ong].iloc[[rowPos]]["Fondos_Publicos_Total"][0]
             training_years[ong][training[ong].iloc[[rowPos]].index[0][0:4]]["privado"]= training[ong].iloc[[rowPos]]["Fondos_Privados_Total"][0]
 
-pickle.dump(dinerosONG, open( "./dinerosONG.p", "wb" ) )
+listP = []
+for year in espanya_subvenciones:
+    for pais in espanya_subvenciones[year]:
+        listP.append(pais)
+len(set(listP))
+
+listP = set()
+for ong in dinerosONG:
+    for year in dinerosONG[ong]:
+        for pais in  dinerosONG[ong][year]:
+            listP.add(pais)
         
 
+pickle.dump(dinerosONG, open( "./dinerosONG.p", "wb" ) )
+        
 training_years_proporcio = {}
 for ong in training_years:
     public = 0
@@ -241,291 +249,200 @@ espanyaList.sort(key = lambda x: x[1],reverse=True)
 
 ####dos.1
 
+espanyaListPaisesYear = {}
+for year in espanya_subvenciones_dinero:
+    espanyaListPaisesYear[year] = []
+    for entry in espanya_subvenciones_dinero[year]:
+        espanyaListPaisesYear[year].append([entry,espanya_subvenciones_dinero[year][entry]])
+    espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
+    for i in range(len(espanyaListPaisesYear[year])):
+        espanyaListPaisesYear[year][i].append(len(espanyaListPaisesYear[year])-i)
+        
+
+dineroPaisesOrderYear = {}
+for ong in training_years:
+    dineroPaisesOrderYear[ong] = {}
+    for year in dinerosONG[ong]:
+        dineroPaisesOrderYear[ong][year] = []
+        for entry in dinerosONG[ong][year]:
+            dineroPaisesOrderYear[ong][year].append((entry,dinerosONG[ong][year][entry]))
+        dineroPaisesOrderYear[ong][year].sort(key = lambda x: x[1],reverse=True)
+    
 NDCGM70 = []
 NDCGm70 = []
-NDCGM70W = []
-NDCGm70W = []
+NDCGM70P = []
+NDCGm70P = []
+
 for ong in training70oMes:
-    dineroPaisesOrderYear = {}
-    for year in dinerosONG[ong]:
-        dineroPaisesOrderYear[year] = []
-        for entry in dinerosONG[ong][year]:
-            dineroPaisesOrderYear[year].append((entry,dinerosONG[ong][year][entry]))
-        dineroPaisesOrderYear[year].sort(key = lambda x: x[1],reverse=True)
-    
-    espanyaListPaisesYear = {}
-    for year in espanya_subvenciones_dinero:
-        espanyaListPaisesYear[year] = []
-        for entry in espanya_subvenciones_dinero[year]:
-            espanyaListPaisesYear[year].append((entry,espanya_subvenciones_dinero[year][entry]))
-        espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
-            
-    priorizacionEspanyaYear = {}
-    for year in espanyaListPaisesYear:
-        priorizacionEspanyaYear[year] = []
-        for i in range(len(espanyaListPaisesYear[year])):
-            priorizacionEspanyaYear[year].append(espanyaListPaisesYear[year][i][1])
-        
-    priorizacionONGYear = {}
+    priorizacionONGYear = []
     mitjanesNDCG = []
-    pesMitjanesNDCG = []
-    for year in dineroPaisesOrderYear:
-        priorizacionONGYear[year] = []
-        for entry in dineroPaisesOrderYear[year]:
+    mitjanesNDCGP = []
+    for year in dineroPaisesOrderYear[ong]:
+        priorizacionONGYear = []
+        for entry in dineroPaisesOrderYear[ong][year]:
             pais = entry[0]
-            dinero = 0
-            for el in espanya_subvenciones_dinero[year]:
-                if el == pais:
-                    dinero = espanya_subvenciones_dinero[year][el]
+            info = (0,0)
+            for el in espanyaListPaisesYear[year]:
+                if el[0] == pais:
+                    info = [el[1],el[2]]
                     break
-            priorizacionONGYear[year].append(dinero)
-        
-        
-        value = ndcg_at_k(priorizacionONGYear[year],priorizacionEspanyaYear[year]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear[year]),0)
-        mitjanesNDCG.append(value)
-        for el in range(len(dineroPaisesOrderYear[year])):
-            pesMitjanesNDCG.append(value)
-
-    NDCGM70.append(numpy.mean(mitjanesNDCG))
-    NDCGM70W.append(numpy.mean(pesMitjanesNDCG))
-
-for ong in trainingMenys70:
-    dineroPaisesOrderYear = {}
-    for year in dinerosONG[ong]:
-        dineroPaisesOrderYear[year] = []
-        for entry in dinerosONG[ong][year]:
-            dineroPaisesOrderYear[year].append((entry,dinerosONG[ong][year][entry]))
-        dineroPaisesOrderYear[year].sort(key = lambda x: x[1],reverse=True)
-    
-    espanyaListPaisesYear = {}
-    for year in espanya_subvenciones_dinero:
-        espanyaListPaisesYear[year] = []
-        for entry in espanya_subvenciones_dinero[year]:
-            espanyaListPaisesYear[year].append((entry,espanya_subvenciones_dinero[year][entry]))
-        espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
+            priorizacionONGYear.append(info)
             
-    priorizacionEspanyaYear = {}
-    for year in espanyaListPaisesYear:
-        priorizacionEspanyaYear[year] = []
-        for i in range(len(espanyaListPaisesYear[year])):
-            priorizacionEspanyaYear[year].append(espanyaListPaisesYear[year][i][1])
+        valueDinero = ndcg_at_k([entry[0] for entry in priorizacionONGYear],[entry[1] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        valuePosicion = ndcg_at_k([entry[1] for entry in priorizacionONGYear],[entry[2] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
         
-    priorizacionONGYear = {}
-    mitjanesNDCG = []
-    pesMitjanesNDCG = []
-    for year in dineroPaisesOrderYear:
-        priorizacionONGYear[year] = []
-        for entry in dineroPaisesOrderYear[year]:
-            pais = entry[0]
-            dinero = 0
-            for el in espanya_subvenciones_dinero[year]:
-                if el == pais:
-                    dinero = espanya_subvenciones_dinero[year][el]
-            priorizacionONGYear[year].append(dinero)
-        
-        
-        value = ndcg_at_k(priorizacionONGYear[year],priorizacionEspanyaYear[year]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear[year]),0)
-        mitjanesNDCG.append(value)
-        for el in range(len(dineroPaisesOrderYear[year])):
-            pesMitjanesNDCG.append(value)
-
-    NDCGm70.append(numpy.mean(mitjanesNDCG))
-    NDCGm70W.append(numpy.mean(pesMitjanesNDCG))
+        mitjanesNDCG.append(valueDinero)
+        mitjanesNDCGP.append(valuePosicion)
+    
+    NDCGM70.append(numpy.mean(mitjanesNDCG))
+    NDCGM70P.append(numpy.mean(mitjanesNDCGP))
 
 numpy.mean(NDCGM70)
-numpy.mean(NDCGm70W)
+numpy.mean(NDCGM70P)
+
+for ong in trainingMenys70:
+    priorizacionONGYear = []
+    mitjanesNDCG = []
+    mitjanesNDCGP = []
+    for year in dineroPaisesOrderYear[ong]:
+        priorizacionONGYear = []
+        for entry in dineroPaisesOrderYear[ong][year]:
+            pais = entry[0]
+            info = (0,0)
+            for el in espanyaListPaisesYear[year]:
+                if el[0] == pais:
+                    info = [el[1],el[2]]
+                    break
+            priorizacionONGYear.append(info)
+            
+        valueDinero = ndcg_at_k([entry[0] for entry in priorizacionONGYear],[entry[1] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        valuePosicion = ndcg_at_k([entry[1] for entry in priorizacionONGYear],[entry[2] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        
+        mitjanesNDCG.append(valueDinero)
+        mitjanesNDCGP.append(valuePosicion)
+    
+    NDCGm70.append(numpy.mean(mitjanesNDCG))
+    NDCGm70P.append(numpy.mean(mitjanesNDCGP))
+
 numpy.mean(NDCGm70)
-numpy.mean(NDCGm70W)
+numpy.mean(NDCGm70P)
 
 
 NDCGM50 = []
 NDCGm50 = []
-NDCGM50W = []
-NDCGm50W = []
+NDCGM50P = []
+NDCGm50P = []
+
 for ong in training50oMes:
-    dineroPaisesOrderYear = {}
-    for year in dinerosONG[ong]:
-        dineroPaisesOrderYear[year] = []
-        for entry in dinerosONG[ong][year]:
-            dineroPaisesOrderYear[year].append((entry,dinerosONG[ong][year][entry]))
-        dineroPaisesOrderYear[year].sort(key = lambda x: x[1],reverse=True)
-    
-    espanyaListPaisesYear = {}
-    for year in espanya_subvenciones_dinero:
-        espanyaListPaisesYear[year] = []
-        for entry in espanya_subvenciones_dinero[year]:
-            espanyaListPaisesYear[year].append((entry,espanya_subvenciones_dinero[year][entry]))
-        espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
-            
-    priorizacionEspanyaYear = {}
-    for year in espanyaListPaisesYear:
-        priorizacionEspanyaYear[year] = []
-        for i in range(len(espanyaListPaisesYear[year])):
-            priorizacionEspanyaYear[year].append(espanyaListPaisesYear[year][i][1])
-        
-    priorizacionONGYear = {}
+    priorizacionONGYear = []
     mitjanesNDCG = []
-    pesMitjanesNDCG = []
-    for year in dineroPaisesOrderYear:
-        priorizacionONGYear[year] = []
-        for entry in dineroPaisesOrderYear[year]:
+    mitjanesNDCGP = []
+    for year in dineroPaisesOrderYear[ong]:
+        priorizacionONGYear = []
+        for entry in dineroPaisesOrderYear[ong][year]:
             pais = entry[0]
-            dinero = 0
-            for el in espanya_subvenciones_dinero[year]:
-                if el == pais:
-                    dinero = espanya_subvenciones_dinero[year][el]
-            priorizacionONGYear[year].append(dinero)
+            info = (0,0)
+            for el in espanyaListPaisesYear[year]:
+                if el[0] == pais:
+                    info = [el[1],el[2]]
+                    break
+            priorizacionONGYear.append(info)
+            
+        valueDinero = ndcg_at_k([entry[0] for entry in priorizacionONGYear],[entry[1] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        valuePosicion = ndcg_at_k([entry[1] for entry in priorizacionONGYear],[entry[2] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
         
-        
-        value = ndcg_at_k(priorizacionONGYear[year],priorizacionEspanyaYear[year]+[0]*(194-len(priorizacionEspanyaYear[year])),len(priorizacionONGYear[year]),0)
-        mitjanesNDCG.append(value)
-        for el in range(len(dineroPaisesOrderYear[year])):
-            pesMitjanesNDCG.append(value)
-
+        mitjanesNDCG.append(valueDinero)
+        mitjanesNDCGP.append(valuePosicion)
+    
     NDCGM50.append(numpy.mean(mitjanesNDCG))
-    NDCGM50W.append(numpy.mean(pesMitjanesNDCG))
-
-for ong in trainingMenys50:
-    dineroPaisesOrderYear = {}
-    for year in dinerosONG[ong]:
-        dineroPaisesOrderYear[year] = []
-        for entry in dinerosONG[ong][year]:
-            dineroPaisesOrderYear[year].append((entry,dinerosONG[ong][year][entry]))
-        dineroPaisesOrderYear[year].sort(key = lambda x: x[1],reverse=True)
-    
-    espanyaListPaisesYear = {}
-    for year in espanya_subvenciones_dinero:
-        espanyaListPaisesYear[year] = []
-        for entry in espanya_subvenciones_dinero[year]:
-            espanyaListPaisesYear[year].append((entry,espanya_subvenciones_dinero[year][entry]))
-        espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
-            
-    priorizacionEspanyaYear = {}
-    for year in espanyaListPaisesYear:
-        priorizacionEspanyaYear[year] = []
-        for i in range(len(espanyaListPaisesYear[year])):
-            priorizacionEspanyaYear[year].append(espanyaListPaisesYear[year][i][1])
-        
-    priorizacionONGYear = {}
-    mitjanesNDCG = []
-    pesMitjanesNDCG = []
-    for year in dineroPaisesOrderYear:
-        priorizacionONGYear[year] = []
-        for entry in dineroPaisesOrderYear[year]:
-            pais = entry[0]
-            dinero = 0
-            for el in espanya_subvenciones_dinero[year]:
-                if el == pais:
-                    dinero = espanya_subvenciones_dinero[year][el]
-            priorizacionONGYear[year].append(dinero)
-        
-        
-        value = ndcg_at_k(priorizacionONGYear[year],priorizacionEspanyaYear[year]+[0]*(194-len(priorizacionEspanyaYear[year])),len(priorizacionONGYear[year]),0)
-        mitjanesNDCG.append(value)
-        for el in range(len(dineroPaisesOrderYear[year])):
-            pesMitjanesNDCG.append(value)
-
-    NDCGm50.append(numpy.mean(mitjanesNDCG))
-    NDCGm50W.append(numpy.mean(pesMitjanesNDCG))
-
+    NDCGM50P.append(numpy.mean(mitjanesNDCGP))
 
 numpy.mean(NDCGM50)
+numpy.mean(NDCGM50P)
+
+for ong in trainingMenys50:
+    priorizacionONGYear = []
+    mitjanesNDCG = []
+    mitjanesNDCGP = []
+    for year in dineroPaisesOrderYear[ong]:
+        priorizacionONGYear = []
+        for entry in dineroPaisesOrderYear[ong][year]:
+            pais = entry[0]
+            info = (0,0)
+            for el in espanyaListPaisesYear[year]:
+                if el[0] == pais:
+                    info = [el[1],el[2]]
+                    break
+            priorizacionONGYear.append(info)
+            
+        valueDinero = ndcg_at_k([entry[0] for entry in priorizacionONGYear],[entry[1] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        valuePosicion = ndcg_at_k([entry[1] for entry in priorizacionONGYear],[entry[2] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        
+        mitjanesNDCG.append(valueDinero)
+        mitjanesNDCGP.append(valuePosicion)
+    
+    NDCGm50.append(numpy.mean(mitjanesNDCG))
+    NDCGm50P.append(numpy.mean(mitjanesNDCGP))
+
 numpy.mean(NDCGm50)
-numpy.mean(NDCGM50W)
-numpy.mean(NDCGm50W)
-
-
+numpy.mean(NDCGm50P)
 
 NDCGM25 = []
 NDCGm25 = []
-NDCGM25W = []
-NDCGm25W = []
+NDCGM25P = []
+NDCGm25P = []
+
 for ong in training25oMes:
-    dineroPaisesOrderYear = {}
-    for year in dinerosONG[ong]:
-        dineroPaisesOrderYear[year] = []
-        for entry in dinerosONG[ong][year]:
-            dineroPaisesOrderYear[year].append((entry,dinerosONG[ong][year][entry]))
-        dineroPaisesOrderYear[year].sort(key = lambda x: x[1],reverse=True)
-    
-    espanyaListPaisesYear = {}
-    for year in espanya_subvenciones_dinero:
-        espanyaListPaisesYear[year] = []
-        for entry in espanya_subvenciones_dinero[year]:
-            espanyaListPaisesYear[year].append((entry,espanya_subvenciones_dinero[year][entry]))
-        espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
-            
-    priorizacionEspanyaYear = {}
-    for year in espanyaListPaisesYear:
-        priorizacionEspanyaYear[year] = []
-        for i in range(len(espanyaListPaisesYear[year])):
-            priorizacionEspanyaYear[year].append(espanyaListPaisesYear[year][i][1])
-        
-    priorizacionONGYear = {}
+    priorizacionONGYear = []
     mitjanesNDCG = []
-    pesMitjanesNDCG = []
-    for year in dineroPaisesOrderYear:
-        priorizacionONGYear[year] = []
-        for entry in dineroPaisesOrderYear[year]:
+    mitjanesNDCGP = []
+    for year in dineroPaisesOrderYear[ong]:
+        priorizacionONGYear = []
+        for entry in dineroPaisesOrderYear[ong][year]:
             pais = entry[0]
-            dinero = 0
-            for el in espanya_subvenciones_dinero[year]:
-                if el == pais:
-                    dinero = espanya_subvenciones_dinero[year][el]
-            priorizacionONGYear[year].append(dinero)
+            info = (0,0)
+            for el in espanyaListPaisesYear[year]:
+                if el[0] == pais:
+                    info = [el[1],el[2]]
+                    break
+            priorizacionONGYear.append(info)
+            
+        valueDinero = ndcg_at_k([entry[0] for entry in priorizacionONGYear],[entry[1] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        valuePosicion = ndcg_at_k([entry[1] for entry in priorizacionONGYear],[entry[2] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
         
-        
-        value = ndcg_at_k(priorizacionONGYear[year],priorizacionEspanyaYear[year]+[0]*(194-len(priorizacionEspanyaYear[year])),len(priorizacionONGYear[year]),0)
-        mitjanesNDCG.append(value)
-        for el in range(len(dineroPaisesOrderYear[year])):
-            pesMitjanesNDCG.append(value)
-
+        mitjanesNDCG.append(valueDinero)
+        mitjanesNDCGP.append(valuePosicion)
+    
     NDCGM25.append(numpy.mean(mitjanesNDCG))
-    NDCGM25W.append(numpy.mean(pesMitjanesNDCG))
-
-for ong in trainingMenys25:
-    dineroPaisesOrderYear = {}
-    for year in dinerosONG[ong]:
-        dineroPaisesOrderYear[year] = []
-        for entry in dinerosONG[ong][year]:
-            dineroPaisesOrderYear[year].append((entry,dinerosONG[ong][year][entry]))
-        dineroPaisesOrderYear[year].sort(key = lambda x: x[1],reverse=True)
-    
-    espanyaListPaisesYear = {}
-    for year in espanya_subvenciones_dinero:
-        espanyaListPaisesYear[year] = []
-        for entry in espanya_subvenciones_dinero[year]:
-            espanyaListPaisesYear[year].append((entry,espanya_subvenciones_dinero[year][entry]))
-        espanyaListPaisesYear[year].sort(key = lambda x: x[1],reverse=True)
-            
-    priorizacionEspanyaYear = {}
-    for year in espanyaListPaisesYear:
-        priorizacionEspanyaYear[year] = []
-        for i in range(len(espanyaListPaisesYear[year])):
-            priorizacionEspanyaYear[year].append(espanyaListPaisesYear[year][i][1])
-        
-    priorizacionONGYear = {}
-    mitjanesNDCG = []
-    pesMitjanesNDCG = []
-    for year in dineroPaisesOrderYear:
-        priorizacionONGYear[year] = []
-        for entry in dineroPaisesOrderYear[year]:
-            pais = entry[0]
-            dinero = 0
-            for el in espanya_subvenciones_dinero[year]:
-                if el == pais:
-                    dinero = espanya_subvenciones_dinero[year][el]
-            priorizacionONGYear[year].append(dinero)
-        
-        
-        value = ndcg_at_k(priorizacionONGYear[year],priorizacionEspanyaYear[year]+[0]*(194-len(priorizacionEspanyaYear[year])),len(priorizacionONGYear[year]),0)
-        mitjanesNDCG.append(value)
-        for el in range(len(dineroPaisesOrderYear[year])):
-            pesMitjanesNDCG.append(value)
-
-    NDCGm25.append(numpy.mean(mitjanesNDCG))
-    NDCGm25W.append(numpy.mean(pesMitjanesNDCG))
+    NDCGM25P.append(numpy.mean(mitjanesNDCGP))
 
 numpy.mean(NDCGM25)
+numpy.mean(NDCGM25P)
+
+for ong in trainingMenys25:
+    priorizacionONGYear = []
+    mitjanesNDCG = []
+    mitjanesNDCGP = []
+    for year in dineroPaisesOrderYear[ong]:
+        priorizacionONGYear = []
+        for entry in dineroPaisesOrderYear[ong][year]:
+            pais = entry[0]
+            info = (0,0)
+            for el in espanyaListPaisesYear[year]:
+                if el[0] == pais:
+                    info = [el[1],el[2]]
+                    break
+            priorizacionONGYear.append(info)
+            
+        valueDinero = ndcg_at_k([entry[0] for entry in priorizacionONGYear],[entry[1] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        valuePosicion = ndcg_at_k([entry[1] for entry in priorizacionONGYear],[entry[2] for entry in espanyaListPaisesYear[year]]+[0]*(194-len(espanyaListPaisesYear[year])),len(priorizacionONGYear))
+        
+        mitjanesNDCG.append(valueDinero)
+        mitjanesNDCGP.append(valuePosicion)
+    
+    NDCGm25.append(numpy.mean(mitjanesNDCG))
+    NDCGm25P.append(numpy.mean(mitjanesNDCGP))
+
 numpy.mean(NDCGm25)
+numpy.mean(NDCGm25P)
 
