@@ -25,6 +25,7 @@ def ndcg_at_k(r,rBest, k):
     return dcg_at_k(r, k) / dcg_max
 
 #leemos excels
+
 training = {}
 path = './output/'
 for root, dirs, files in os.walk(path):
