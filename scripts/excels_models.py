@@ -26,7 +26,8 @@ listColumns = listColumns + ["Vision_ONGD_Latinoamerica",'Vision_ONGD_Africa','V
 
 PaisosVisitats = {}
 paisosVisitatsONG = {}
-
+paisosTotal = set()
+len(list(paisosTotal))
 for ong in training:
     
     PaisosVisitats[ong]= []
@@ -36,6 +37,7 @@ for ong in training:
     examples = {}
     for rowPos in range(len(training[ong])):
         pais = training[ong].iloc[[rowPos]].index[0][5:]
+        paisosTotal.add(pais)
         PaisosVisitats[ong].append(pais)
         paisosVisitatsONG[ong].append(int(training[ong].iloc[[rowPos]]["ONU"][0]))
         if pais not in llistatPaisos:
@@ -108,7 +110,7 @@ trainingGlobal_negatiu.to_excel("./output/allExcels_negatiu.xlsx")
     
 
 
-
+len(trainingGlobal_negatiu)
 
 
 
