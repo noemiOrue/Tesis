@@ -1,0 +1,24 @@
+Call:
+lm(formula = Dinero_en_el_proyecto ~ Total_Fondos + NGO_Country_Budget_Previous_Year + 
+    Proporcion_Fondos_Privados + Vision_ONGD_Africa + Anyo_ONG + 
+    Internacional, data = allInfoLog)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.0102  -0.5038  -0.3654  -0.2513  23.6502 
+
+Coefficients:
+                                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                       1.020e-01  3.810e-02   2.676  0.00744 ** 
+Total_Fondos                      1.433e-08  1.177e-09  12.175  < 2e-16 ***
+NGO_Country_Budget_Previous_Year  7.946e-01  3.195e-03 248.717  < 2e-16 ***
+Proporcion_Fondos_Privados        2.688e-01  5.521e-02   4.869 1.12e-06 ***
+Vision_ONGD_Africa               -2.087e-01  8.786e-02  -2.375  0.01755 *  
+Anyo_ONG                          4.388e-03  8.008e-04   5.479 4.30e-08 ***
+Internacional                    -2.618e-01  6.574e-02  -3.983 6.82e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 3.407 on 37003 degrees of freedom
+Multiple R-squared:  0.6488,	Adjusted R-squared:  0.6487 
+F-statistic: 1.139e+04 on 6 and 37003 DF,  p-value: < 2.2e-16

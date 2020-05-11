@@ -10,7 +10,7 @@ import shap
 import numpy as np
 import copy
 
-trainingGlobal_negatiu = pandas.read_excel("./output/allExcels_negatiu.xlsx", sheet_name='Sheet1',index_col = "Pais-Año")
+trainingGlobal_negatiu = pandas.read_excel("../output/allExcels_negatiu.xlsx", sheet_name='Sheet1',index_col = "Pais-Año")
 
 
 #trainingGlobal =trainingGlobal.replace("..",0)
@@ -25,8 +25,11 @@ del provaRF_negatiu['Visitado']
 del provaRF_negatiu['Dinero_en_el_proyecto']
 
 import catboost as cbt
+import shap
 
-cbt_model_df_R = cbt.CatBoostRegressor(train_dir="./entrenament/",bootstrap_type = 'Bernoulli',subsample = 0.66,rsm = 0.66,iterations=1000, random_seed=99)
+cbt.__version__
+
+cbt_model_df_R = cbt.CatBoostRegressor(train_dir="./entrenament/",bootstrap_type = 'Bernoulli',subsample = 0.66,rsm = 0.66,iterations=1000, random_seed=99,loss_function='RMSE',eval_metric="MAE")
 cbt_model_df_R.fit(provaRF_negatiu,trainingGlobal_negatiu['Dinero_en_el_proyecto'])
 explainer_regressor = shap.TreeExplainer(cbt_model_df_R)
 shap_values_regressor = explainer_regressor.shap_values(provaRF_negatiu)

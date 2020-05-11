@@ -1,0 +1,32 @@
+Call:
+glm(formula = Visitado ~ ONU + Total_Fondos + Public_Grant + 
+    NGO_Country_Budget_Previous_Year + Proporcion_Fondos_Privados + 
+    Total_subvencion_en_el_Pais_y_Anyo + Vision_ONGD_Africa + 
+    Anyo_ONG + Internacional, family = "binomial", data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.0371  -0.2865  -0.2280  -0.1906   3.1261  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                        -4.020e+00  7.404e-02 -54.292  < 2e-16 ***
+ONU                                -1.370e-01  5.520e-02  -2.481 0.013102 *  
+Total_Fondos                        1.022e-08  1.367e-09   7.475 7.70e-14 ***
+Public_Grant                       -1.277e-02  4.576e-03  -2.790 0.005277 ** 
+NGO_Country_Budget_Previous_Year    2.952e-01  3.266e-03  90.394  < 2e-16 ***
+Proporcion_Fondos_Privados          7.830e-01  8.081e-02   9.689  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -1.283e-02  2.560e-03  -5.014 5.34e-07 ***
+Vision_ONGD_Africa                 -6.777e-01  1.994e-01  -3.398 0.000678 ***
+Anyo_ONG                            1.158e-02  8.505e-04  13.621  < 2e-16 ***
+Internacional                       2.456e-01  8.881e-02   2.765 0.005688 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30094  on 37009  degrees of freedom
+Residual deviance: 13670  on 37000  degrees of freedom
+AIC: 13690
+
+Number of Fisher Scoring iterations: 6

@@ -15,7 +15,7 @@ import os
 import csv
 
 paises = []
-file = csv.reader(open("./dades/Datos_vf/paises.csv","r",encoding="utf8"), delimiter=',',quoting=csv.QUOTE_NONE)
+file = csv.reader(open("../dades/Datos_vf/paises.csv","r",encoding="utf8"), delimiter=',',quoting=csv.QUOTE_NONE)
 for el in file:
     text = el[0].replace('"', '').lower().strip()
     paises.append(unicodedata.normalize('NFD', text).encode('ascii', 'ignore').decode("utf-8"))
@@ -212,13 +212,18 @@ def revisionPaises(inputName):
         return "corea del norte"
     return inputName
 
+oldColonies = ["mexico","guatemala","el salvador","honduras","nicaragua","costa rica","panama"]
+oldColonies = oldColonies + ["colombia","venezuela","ecuador","peru","bolivia","chile","argentina"]
+oldColonies = oldColonies + ["paraguay","uruguay","cuba","puerto rico"]
+oldColonies = oldColonies + ["filipinas","guam", "marruecos","sahara occidental","guinea ecuatorial"] 
+
 
 
 dinerosEspanya = {}
 ong = {}
 #Historico subvenciones 2009 a 2016 ["SUBVENCIONES"]
-PC_subvenciones = pd.read_excel('./dades/Datos_vf/Histórico subvenciones convocatorias AECID 1992-2018 (exc. CAP).xls', sheet_name='Proyectos y Convenos')
-PC_Acciones = pd.read_excel('./dades/Datos_vf/Histórico subvenciones convocatorias AECID 1992-2018 (exc. CAP).xls', sheet_name='Acciones')
+PC_subvenciones = pd.read_excel('../dades/Datos_vf/Histórico subvenciones convocatorias AECID 1992-2018 (exc. CAP).xls', sheet_name='Proyectos y Convenos')
+PC_Acciones = pd.read_excel('../dades/Datos_vf/Histórico subvenciones convocatorias AECID 1992-2018 (exc. CAP).xls', sheet_name='Acciones')
 
 new_header = PC_subvenciones.iloc[0] 
 PC_subvenciones = PC_subvenciones[1:] 
@@ -296,7 +301,7 @@ for i in range(0,len(PC_Acciones)):
 
 #ingresos ong 2014 a 2015 ["INGRESOS"]
 
-ingresos2014 = pd.read_excel('./dades/Datos_vf/ongd9_informe2014-2015_Ingresos.xlsx', sheet_name='Fondos2014')
+ingresos2014 = pd.read_excel('../dades/Datos_vf/ongd9_informe2014-2015_Ingresos.xlsx', sheet_name='Fondos2014')
 new_header = ingresos2014.iloc[4]
 ingresos2014 = ingresos2014[5:] 
 ingresos2014.columns = new_header 
@@ -322,7 +327,7 @@ for i in range(0,len(ingresos2014)):
         ong[ong_nom][2014]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info["TOTAL INTERNACIONAL"])
         ong[ong_nom][2014]["INGRESOS"]["Otros fondos públicos"] = float(info["Otros fondos públicos"])
         
-ingresos2015 = pd.read_excel('./dades/Datos_vf/ongd9_informe2014-2015_Ingresos.xlsx', sheet_name='Fondos2015')
+ingresos2015 = pd.read_excel('../dades/Datos_vf/ongd9_informe2014-2015_Ingresos.xlsx', sheet_name='Fondos2015')
 new_header = ingresos2015.iloc[4] 
 ingresos2015 = ingresos2015[5:]
 ingresos2015.columns = new_header 
@@ -350,7 +355,7 @@ for i in range(0,len(ingresos2015)):
         ong[ong_nom][2015]["INGRESOS"]["Otros fondos públicos"] = float(info["Otros fondos públicos"])
     
 
-ingresos2016 = pd.read_excel('./dades/Datos_vf/ongd9_informe2016_Ingresos.xlsx', sheet_name='Fondos')
+ingresos2016 = pd.read_excel('../dades/Datos_vf/ongd9_informe2016_Ingresos.xlsx', sheet_name='Fondos')
 new_header = ingresos2016.iloc[4] 
 ingresos2016 = ingresos2016[5:] 
 ingresos2016.columns = new_header 
@@ -377,7 +382,7 @@ for i in range(0,len(ingresos2016)):
         ong[ong_nom][2016]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info["TOTAL fondos internacionales"])
         ong[ong_nom][2016]["INGRESOS"]["Otros fondos públicos"] = float(info["Otros   "])
 
-ingresos = pd.read_excel('./dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 2')
+ingresos = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 2')
 header_ingresos = ingresos.iloc[5] 
 ingresos = ingresos[7:]
 ingresos.columns = header_ingresos
@@ -407,7 +412,7 @@ for i in range(0,len(ingresos)):
         ong[ong_nom][2013]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info[14])
         ong[ong_nom][2013]["INGRESOS"]["Otros fondos públicos"] = float(info[15])
 
-ingresos = pd.read_excel('./dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 2')
+ingresos = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 2')
 header_ingresos = ingresos.iloc[5] #grab the first row for the header
 ingresos = ingresos[7:]
 ingresos.columns = header_ingresos
@@ -439,7 +444,7 @@ for i in range(0,len(ingresos)):
         ong[ong_nom][2012]["INGRESOS"]["Otros fondos públicos"] = float(info[15])
 
 
-voluntarios = pd.read_excel('./dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 9-bsocial')
+voluntarios = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 9-bsocial')
 voluntarios = voluntarios[6:]
 i = 0
 for i in range(0,len(voluntarios)):
@@ -458,7 +463,7 @@ for i in range(0,len(voluntarios)):
     
     
 
-voluntarios = pd.read_excel('./dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 9-bsocial')
+voluntarios = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 9-bsocial')
 voluntarios = voluntarios[6:]
 i = 0
 for i in range(0,len(voluntarios)):
@@ -476,7 +481,7 @@ for i in range(0,len(voluntarios)):
         ong[ong_nom][2013]["VOLUNTARIOS"]["Extranjero"] = float(info[7])
 
 
-voluntarios = pd.read_excel('./dades/Datos_vf/ongd11_informe2014-2015_Base Social.xls', sheet_name="base social 2014")
+voluntarios = pd.read_excel('../dades/Datos_vf/ongd11_informe2014-2015_Base Social.xls', sheet_name="base social 2014")
 header_voluntarios = voluntarios.iloc[1] 
 voluntarios = voluntarios[3:]
 voluntarios.columns = header_voluntarios
@@ -498,7 +503,7 @@ for i in range(0,len(voluntarios)):
         ong[ong_nom][2014]["VOLUNTARIOS"]["Extranjero"] = float(info["Total extranjero"])
     
 
-voluntarios = pd.read_excel('./dades/Datos_vf/ongd11_informe2014-2015_Base Social.xls', sheet_name="base social 2015")
+voluntarios = pd.read_excel('../dades/Datos_vf/ongd11_informe2014-2015_Base Social.xls', sheet_name="base social 2015")
 header_voluntarios = voluntarios.iloc[1] #grab the first row for the header
 voluntarios = voluntarios[3:]
 voluntarios.columns = header_voluntarios
@@ -522,7 +527,7 @@ for i in range(0,len(voluntarios)):
 
 
 
-voluntarios = pd.read_excel('./dades/Datos_vf/ongd11_informe2016_Base Social.xls', sheet_name="base social")
+voluntarios = pd.read_excel('../dades/Datos_vf/ongd11_informe2016_Base Social.xls', sheet_name="base social")
 header_voluntarios = voluntarios.iloc[1]
 voluntarios = voluntarios[3:]
 voluntarios.columns = header_voluntarios
@@ -545,7 +550,7 @@ for i in range(0,len(voluntarios)):
     
 
 #trabajadores ong 2014 a 2015 ["TRABAJADORES"]
-treballadors = pd.read_excel('./dades/Datos_vf/ongd8_informe2014-2015_Recursos Humanos.xls', sheet_name='Remunerado 2014')
+treballadors = pd.read_excel('../dades/Datos_vf/ongd8_informe2014-2015_Recursos Humanos.xls', sheet_name='Remunerado 2014')
 header_treballadors = treballadors.iloc[2] #grab the first row for the header
 treballadors = treballadors[3:] #take the data less the header row
 header_treballadors[0]="ONG"
@@ -571,7 +576,7 @@ for i in range(0,len(treballadors)):
         ong[ong_nom][2014]["TRABAJADORES"]["Local"] = info["Local"]
                 
 
-treballadors = pd.read_excel('./dades/Datos_vf/ongd8_informe2014-2015_Recursos Humanos.xls', sheet_name='Remunerado 2015')
+treballadors = pd.read_excel('../dades/Datos_vf/ongd8_informe2014-2015_Recursos Humanos.xls', sheet_name='Remunerado 2015')
 header_treballadors = treballadors.iloc[2]
 treballadors = treballadors[3:] 
 header_treballadors[0]="ONG"
@@ -596,7 +601,7 @@ for i in range(0,len(treballadors)):
         ong[ong_nom][2015]["TRABAJADORES"]["Extranjero"] = info["Extranjero"]
         ong[ong_nom][2015]["TRABAJADORES"]["Local"] = info["Local"]
 
-treballadors = pd.read_excel('./dades/Datos_vf/ongd8_informe2016_Recursos Humanos.xls', sheet_name='Remunerado')
+treballadors = pd.read_excel('../dades/Datos_vf/ongd8_informe2016_Recursos Humanos.xls', sheet_name='Remunerado')
 treballadors = treballadors[1:] 
 
 i = 0
@@ -617,7 +622,7 @@ for i in range(0,len(treballadors)):
 
 
 
-treballadors = pd.read_excel('./dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 4')
+treballadors = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 4')
 header_treballadors = treballadors.iloc[5]
 treballadors = treballadors[8:]
 header_treballadors[1]="ONG"
@@ -640,7 +645,7 @@ for i in range(0,len(treballadors)):
         ong[ong_nom][2012]["TRABAJADORES"]["Local"] = info[-5]
 
 
-treballadors = pd.read_excel('./dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 4')
+treballadors = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 4')
 header_treballadors = treballadors.iloc[5] 
 treballadors = treballadors[8:]
 header_treballadors[1]="ONG"
@@ -691,7 +696,7 @@ for root, dirs, files in os.walk(path):
             else:
                 pass
                 
-proyectos = pd.read_excel('./dades/Datos_vf/ongd14_informe2014-2015_proyectos paises.xlsx', sheet_name='ongd paises')
+proyectos = pd.read_excel('../dades/Datos_vf/ongd14_informe2014-2015_proyectos paises.xlsx', sheet_name='ongd paises')
 header_paises = proyectos.iloc[0]
 header_proyectos = proyectos.iloc[1]
 proyectos = proyectos[2:] 
@@ -732,7 +737,7 @@ for i in range(0,len(proyectos)):
                         pass
 
 
-proyectos = pd.read_excel('./dades/Datos_vf/informe2016_ongd por paises.xlsx', sheet_name='ongd paises')
+proyectos = pd.read_excel('../dades/Datos_vf/informe2016_ongd por paises.xlsx', sheet_name='ongd paises')
 header_paises = proyectos.iloc[0]
 header_proyectos = proyectos.iloc[1] 
 proyectos = proyectos[2:] 
@@ -769,7 +774,7 @@ for i in range(0,len(proyectos)):
                 
 # ['INGRESOS'] y ['TRABAJADORES'] 2009
 
-proyectos = pd.read_excel('./dades/Datos_vf/Informe2008-2009_ongd por paises + dineritos + personal.xlsx', sheet_name='2009')
+proyectos = pd.read_excel('../dades/Datos_vf/Informe2008-2009_ongd por paises + dineritos + personal.xlsx', sheet_name='2009')
 header = proyectos.iloc[0]
 proyectos = proyectos[1:] 
 header[0] = "ong"
@@ -1129,7 +1134,7 @@ for root, dirs, files in os.walk(path):
 
 # ['ONU'] TODOS LOS AÑOS
 paises_ONU = {}
-onu = pd.read_excel('./dades/Datos_vf/Países Priorizados ONU.xlsx', sheet_name='PMA')
+onu = pd.read_excel('../dades/Datos_vf/Países Priorizados ONU.xlsx', sheet_name='PMA')
 for i in range(len(onu)):
     info = onu.iloc[i]
     pais_onu = revisionPaises(unicodedata.normalize('NFD', info["PAÍS"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") ) 
@@ -1141,7 +1146,7 @@ for i in range(len(onu)):
         paises_ONU[pais_onu]["ONU"][year]= info[year]
 
 ###ingressos anuals països
-file = pd.read_excel('./dades/Data_Extract_From_Indicadores_del_desarrollo_mundial/Data_Extract_From_Indicadores_del_desarrollo_mundial.xlsx', sheet_name='Data')
+file = pd.read_excel('../dades/Data_Extract_From_Indicadores_del_desarrollo_mundial/Data_Extract_From_Indicadores_del_desarrollo_mundial.xlsx', sheet_name='Data')
 years = [2009,2010,2011,2012,2013,2014,2015,2016]
 for i in range(len(file)):    
     info = file.iloc[i]
@@ -1162,7 +1167,7 @@ for year in paises_ONU["serbia"]["money"]:
     paises_ONU["serbia y montenegro"]["money"][year] = (paises_ONU["serbia"]["money"][year]*11+paises_ONU["montenegro"]["money"][year])/12
     
     
-mision = pd.read_excel('./dades/Datos_vf/misioìn todas ong.xlsx', sheet_name='misiónONGD')
+mision = pd.read_excel('../dades/Datos_vf/misioìn todas ong.xlsx', sheet_name='misiónONGD')
 header = mision.iloc[0]
 mision = mision[1:] 
 mision.columns = header
@@ -1176,7 +1181,7 @@ for i in range(len(mision)):
     ong[ongd]["priorizacion"] = [info[1],info[2],info[3],info[4]]
     
 
-mision = pd.read_excel('./dades/Datos_vf/misioìn todas ong.xlsx', sheet_name='forma jurídica')
+mision = pd.read_excel('../dades/Datos_vf/misioìn todas ong.xlsx', sheet_name='forma jurídica')
 
 for i in range(len(mision)):    
     info = mision.iloc[i]
@@ -1186,6 +1191,29 @@ for i in range(len(mision)):
     if ongd not in ong:
         ong[ongd] = {}
     ong[ongd]["info"] = [info[4]]
+    
+universal = pd.read_excel('../Listado ONGD socias.xlsx', sheet_name='Hoja1')
+new_header = universal.iloc[0] 
+universal = universal[1:] 
+universal.columns = new_header 
+
+
+for i in range(len(universal)):  
+    
+    info = universal.iloc[i]
+    try:
+        ongd = revisionNombres(unicodedata.normalize('NFD', info["Nombre habitual"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )    
+        ongd = revisionNombres(ongd)
+        if ongd in ong:
+            ong[ongd]["anyo"] = info["Año constitución"]
+            ong[ongd]["internacional"] = info["international =1 Nacional=0"]
+    except:
+        pass
+    
+
+
+
+
 
 import xlsxwriter
 
@@ -1198,27 +1226,27 @@ ongsFer = ongsFer + ["frs","entreculturas","iberoamerica europa","fuden","promoc
 for ong_nom in ongsFer:
     
     posExcel = 1
-    workbook = xlsxwriter.Workbook("./output/"+str(ong_nom)+".xlsx")
+    workbook = xlsxwriter.Workbook("../output/"+str(ong_nom)+".xlsx")
     worksheet = workbook.add_worksheet()
     worksheet.set_column('A:A', 20)
     bold = workbook.add_format({'bold': True})
     worksheet.write('A1', 'Pais-Año',bold)
     worksheet.write('B1', 'ONU',bold)
     worksheet.write('C1', 'Gross_National_Income',bold)
-    worksheet.write('D1', 'Subvencion_publica',bold)
-    worksheet.write('E1', 'dinero_anyo_anterior_en_proyectos',bold)
-    worksheet.write('F1', 'Vision_ONGD_Latinoamerica',bold)
+    worksheet.write('D1', 'Public_Grant',bold)
+    worksheet.write('E1', 'NGO_Country_Budget_Previous_Year',bold)
+    worksheet.write('F1', 'Vision_ONGD_LatinAmerica',bold)
     worksheet.write('G1', 'Vision_ONGD_Africa',bold)
-    worksheet.write('H1', 'Vision_ONGD_Confesional',bold)
+    worksheet.write('H1', 'Vision_ONGD_Confessional',bold)
     worksheet.write('I1', 'Vision_ONGD_Universal',bold)
-    worksheet.write('J1', 'Fondos_Publicos_MAE',bold)
-    worksheet.write('K1', 'Fondos_Publicos_Descentralizada',bold)
-    worksheet.write('L1', 'Fondos_Publicos_Internacional',bold)
-    worksheet.write('M1', 'Fondos_Publicos_Otros',bold)
-    worksheet.write('N1', 'Fondos_Publicos_Total',bold)
-    worksheet.write('O1', 'Fondos_Privados_Cuotas',bold)
-    worksheet.write('P1', 'Fondos_Privados_Donaciones',bold)
-    worksheet.write('Q1', 'Fondos_Privados_Empresas',bold)
+    worksheet.write('J1', 'Public_Funds_MAE',bold)
+    worksheet.write('K1', 'Public_Funds_Decentralized',bold)
+    worksheet.write('L1', 'Public_Funds_Internacional',bold)
+    worksheet.write('M1', 'Public_Funds_Other',bold)
+    worksheet.write('N1', 'Public_Funds_Total',bold)
+    worksheet.write('O1', 'Private_Funds_Cuotas',bold)
+    worksheet.write('P1', 'Public_Funds_Donations',bold)
+    worksheet.write('Q1', 'Public_Funds_Companies',bold)
     worksheet.write('R1', 'Fondos_Privados_Venta',bold)
     worksheet.write('S1', 'Fondos_Privados_Servicios',bold)
     worksheet.write('T1', 'Fondos_Privados_Total',bold)
@@ -1236,8 +1264,11 @@ for ong_nom in ongsFer:
     worksheet.write('AF1', 'Total_subvencion_en_el_Pais_y_Anyo',bold)
     worksheet.write('AG1', 'Total_Fondos',bold)
     worksheet.write('AH1', 'Proporcion_Fondos_Privados',bold)
-    worksheet.write('AI1', 'Visitado',bold)
-    worksheet.write('AJ1', 'Dinero_en_el_proyecto',bold)
+    worksheet.write('AI1', 'Anyo_ONG',bold)
+    worksheet.write('AJ1', 'Internacional',bold)
+    worksheet.write("AK1", "Colony", bold)
+    worksheet.write('AL1', 'Visitado',bold)
+    worksheet.write('AM1', 'Dinero_en_el_proyecto',bold)
     
     for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
         if year in ong[ong_nom]:
@@ -1248,7 +1279,7 @@ for ong_nom in ongsFer:
                     totalFondos = 0
                     totalFondosPrivados = 0
                     if pais in paises:
-                        qFer+=1
+                        
                         worksheet.write(posExcel, 0, str(year)+"_"+str(pais))
                         if pais in paises_ONU and "ONU" in paises_ONU[pais]:
                             if year in paises_ONU[pais]["ONU"]:
@@ -1414,8 +1445,22 @@ for ong_nom in ongsFer:
                             worksheet.write(posExcel, 33,0)
                         else:
                             worksheet.write(posExcel, 33,totalFondosPrivados/totalFondos)
-                        worksheet.write(posExcel, 34,1)
-                        worksheet.write(posExcel, 35,ong[ong_nom][year]["PROYECTOS"][pais])
+                        if "anyo" in ong[ong_nom]:
+                            worksheet.write(posExcel, 34,ong[ong_nom]["anyo"])
+                            try:
+                                worksheet.write(posExcel, 35,ong[ong_nom]["internacional"])
+                            except:
+                                worksheet.write(posExcel, 35,0)
+                        else:
+                            worksheet.write(posExcel, 34,0)
+                            worksheet.write(posExcel, 35,0)
+                        if pais in oldColonies:
+                            worksheet.write(posExcel, 36,1)
+                        else:
+                            worksheet.write(posExcel, 36,0)
+                        worksheet.write(posExcel, 37,1)
+                        worksheet.write(posExcel, 38,ong[ong_nom][year]["PROYECTOS"][pais])
+                        
                         posExcel+=1
                     else:
                         pass
