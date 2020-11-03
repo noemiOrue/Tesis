@@ -1,0 +1,19 @@
+Call:
+lm(formula = Dinero_en_el_proyecto ~ NGO_Country_Budget_Previous_Year + 
+    Delegacion, data = allInfoLog)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.8893  -0.4063  -0.4063  -0.4063  23.5881 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                      0.406295   0.018293   22.21   <2e-16 ***
+NGO_Country_Budget_Previous_Year 0.703785   0.003532  199.24   <2e-16 ***
+Delegacion                       4.621831   0.085037   54.35   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 3.291 on 37223 degrees of freedom
+Multiple R-squared:  0.6719,	Adjusted R-squared:  0.6719 
+F-statistic: 3.811e+04 on 2 and 37223 DF,  p-value: < 2.2e-16

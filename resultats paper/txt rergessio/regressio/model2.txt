@@ -1,0 +1,25 @@
+Call:
+lm(formula = Dinero_en_el_proyecto ~ Total_Fondos + Proporcion_Fondos_Privados + 
+    Proporcion_Fondos_MAE + NGO_Country_Budget_Previous_Year + 
+    Internacional + Colony + Delegacion, data = allInfoLog)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-21.7428  -0.6557  -0.2983  -0.0093  23.1435 
+
+Coefficients:
+                                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                      -1.089e-01  4.331e-02  -2.514  0.01194 *  
+Total_Fondos                      1.655e-08  1.130e-09  14.639  < 2e-16 ***
+Proporcion_Fondos_Privados        7.702e-01  6.303e-02  12.220  < 2e-16 ***
+Proporcion_Fondos_MAE             2.355e-01  7.208e-02   3.268  0.00108 ** 
+NGO_Country_Budget_Previous_Year  6.793e-01  3.650e-03 186.096  < 2e-16 ***
+Internacional                    -6.607e-01  6.191e-02 -10.673  < 2e-16 ***
+Colony                            5.003e-01  4.425e-02  11.306  < 2e-16 ***
+Delegacion                        4.763e+00  8.655e-02  55.038  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 3.264 on 37218 degrees of freedom
+Multiple R-squared:  0.6773,	Adjusted R-squared:  0.6772 
+F-statistic: 1.116e+04 on 7 and 37218 DF,  p-value: < 2.2e-16

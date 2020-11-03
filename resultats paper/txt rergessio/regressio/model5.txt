@@ -1,0 +1,34 @@
+Call:
+lm(formula = Dinero_en_el_proyecto ~ ONU + Gross_National_Income + 
+    Public_Grant + Total_Fondos + Proporcion_Fondos_Privados + 
+    Proporcion_Fondos_MAE + NGO_Country_Budget_Previous_Year + 
+    Total_subvencion_en_el_Pais_y_Anyo + Vision_ONGD_LatinAmerica + 
+    Vision_ONGD_Africa + Vision_ONGD_Universal + Internacional + 
+    Colony, data = allInfoLog)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.3506  -0.6042  -0.2949  -0.0889  23.0868 
+
+Coefficients:
+                                     Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                         1.346e-01  1.109e-01   1.214  0.22490    
+ONU                                 1.019e-01  4.231e-02   2.409  0.01601 *  
+Gross_National_Income              -1.520e-02  5.561e-03  -2.733  0.00628 ** 
+Public_Grant                        6.410e-03  3.218e-03   1.992  0.04640 *  
+Total_Fondos                        1.718e-08  1.183e-09  14.526  < 2e-16 ***
+Proporcion_Fondos_Privados          4.692e-01  7.033e-02   6.671 2.57e-11 ***
+Proporcion_Fondos_MAE               2.070e-01  7.667e-02   2.700  0.00694 ** 
+NGO_Country_Budget_Previous_Year    7.800e-01  3.279e-03 237.834  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -2.437e-03  1.983e-03  -1.229  0.21919    
+Vision_ONGD_LatinAmerica            7.538e-02  8.401e-02   0.897  0.36957    
+Vision_ONGD_Africa                 -3.076e-01  1.017e-01  -3.023  0.00250 ** 
+Vision_ONGD_Universal              -2.853e-02  7.816e-02  -0.365  0.71511    
+Internacional                      -1.791e-01  6.531e-02  -2.743  0.00610 ** 
+Colony                              7.551e-01  4.802e-02  15.725  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 3.393 on 37212 degrees of freedom
+Multiple R-squared:  0.6513,	Adjusted R-squared:  0.6512 
+F-statistic:  5347 on 13 and 37212 DF,  p-value: < 2.2e-16

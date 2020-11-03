@@ -1,0 +1,41 @@
+Call:
+glm(formula = Visitado ~ ONU + Gross_National_Income + Public_Grant + 
+    Total_Fondos + Proporcion_Fondos_Privados + Proporcion_Fondos_MAE + 
+    NGO_Country_Budget_Previous_Year + Total_subvencion_en_el_Pais_y_Anyo + 
+    Vision_ONGD_LatinAmerica + Vision_ONGD_Africa + Vision_ONGD_Universal + 
+    Internacional + Colony, family = "binomial", data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.0334  -0.2972  -0.2132  -0.1648   3.1575  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                        -3.828e+00  1.523e-01 -25.138  < 2e-16 ***
+ONU                                 1.263e-01  5.905e-02   2.139 0.032429 *  
+Gross_National_Income              -1.706e-02  7.279e-03  -2.344 0.019055 *  
+Public_Grant                       -1.042e-02  4.773e-03  -2.183 0.029022 *  
+Total_Fondos                        1.435e-08  1.329e-09  10.796  < 2e-16 ***
+Proporcion_Fondos_Privados          1.284e+00  1.012e-01  12.681  < 2e-16 ***
+Proporcion_Fondos_MAE               6.171e-01  1.214e-01   5.084 3.70e-07 ***
+NGO_Country_Budget_Previous_Year    2.844e-01  3.267e-03  87.075  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -2.336e-02  2.604e-03  -8.971  < 2e-16 ***
+Vision_ONGD_LatinAmerica           -1.153e-02  1.207e-01  -0.096 0.923860    
+Vision_ONGD_Africa                 -7.441e-01  2.039e-01  -3.650 0.000263 ***
+Vision_ONGD_Universal              -2.378e-01  1.057e-01  -2.249 0.024506 *  
+Internacional                       6.559e-01  8.419e-02   7.791 6.67e-15 ***
+Colony                              9.269e-01  5.710e-02  16.233  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30239  on 37225  degrees of freedom
+Residual deviance: 13591  on 37212  degrees of freedom
+AIC: 13619
+
+Number of Fisher Scoring iterations: 6
+
+> nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+> 1-logLik(modelbin5)/logLik(nullmod)
+'log Lik.' 0.5505334 (df=14)

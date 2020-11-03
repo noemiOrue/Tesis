@@ -1,0 +1,41 @@
+Call:
+glm(formula = Visitado ~ ONU + Gross_National_Income + Public_Grant + 
+    Total_Fondos + Proporcion_Fondos_Privados + Proporcion_Fondos_MAE + 
+    Total_subvencion_en_el_Pais_y_Anyo + Vision_ONGD_LatinAmerica + 
+    Vision_ONGD_Africa + Vision_ONGD_Universal + Internacional + 
+    Colony + Delegacion, family = "binomial", data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.2032  -0.4680  -0.2969  -0.2035   3.2389  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                        -3.519e+00  1.194e-01 -29.470  < 2e-16 ***
+ONU                                 2.312e-01  4.586e-02   5.042 4.61e-07 ***
+Gross_National_Income              -1.674e-02  5.487e-03  -3.052  0.00228 ** 
+Public_Grant                       -1.553e-02  3.855e-03  -4.029 5.59e-05 ***
+Total_Fondos                        2.377e-08  1.056e-09  22.512  < 2e-16 ***
+Proporcion_Fondos_Privados          2.241e+00  8.530e-02  26.271  < 2e-16 ***
+Proporcion_Fondos_MAE               9.102e-01  1.023e-01   8.901  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -1.666e-02  1.997e-03  -8.342  < 2e-16 ***
+Vision_ONGD_LatinAmerica            1.549e-01  8.845e-02   1.751  0.07991 .  
+Vision_ONGD_Africa                 -1.198e+00  1.651e-01  -7.253 4.06e-13 ***
+Vision_ONGD_Universal              -4.665e-01  7.904e-02  -5.901 3.61e-09 ***
+Internacional                      -4.067e-01  7.455e-02  -5.455 4.89e-08 ***
+Colony                              1.405e+00  4.337e-02  32.402  < 2e-16 ***
+Delegacion                          4.342e+00  7.277e-02  59.664  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30239  on 37225  degrees of freedom
+Residual deviance: 20463  on 37212  degrees of freedom
+AIC: 20491
+
+Number of Fisher Scoring iterations: 6
+
+> nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+> 1-logLik(modelbin3)/logLik(nullmod)
+'log Lik.' 0.3232763 (df=14)

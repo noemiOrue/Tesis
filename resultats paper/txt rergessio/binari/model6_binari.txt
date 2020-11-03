@@ -1,0 +1,27 @@
+Call:
+glm(formula = Visitado ~ NGO_Country_Budget_Previous_Year + Delegacion, 
+    family = "binomial", data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.4206  -0.2601  -0.2601  -0.2601   2.6091  
+
+Coefficients:
+                                  Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                      -3.369883   0.030709 -109.73   <2e-16 ***
+NGO_Country_Budget_Previous_Year  0.279349   0.003308   84.44   <2e-16 ***
+Delegacion                        2.921630   0.090723   32.20   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30239  on 37225  degrees of freedom
+Residual deviance: 13541  on 37223  degrees of freedom
+AIC: 13547
+
+Number of Fisher Scoring iterations: 6
+
+> nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+> 1-logLik(modelbin6)/logLik(nullmod)
+'log Lik.' 0.5522037 (df=3)

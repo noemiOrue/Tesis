@@ -22,31 +22,32 @@ import random
 import sys, os, json
 from math import sqrt
 import pandas as pd
-from keras.models import Sequential
-from keras.layers import LSTM, Dense, Activation,Dropout
-from keras.layers.normalization import BatchNormalization
-from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from keras.models import model_from_json
-from keras.preprocessing import sequence
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Activation,Dropout
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.models import model_from_json
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras import optimizers
 import shap
 from sklearn.preprocessing import MinMaxScaler
 
 from sklearn import preprocessing
 import _pickle as pickle
-import keras
+import tensorflow.keras
 import copy
 
-dataO = pd.read_excel("../output/allExcels_negatiu.xlsx",index_col = 0, header=0)
+#dataO = pd.read_excel("../output/allExcels_negatiu.xlsx",index_col = 0, header=0)
 
 data = pd.read_excel("../output/allExcels_negatiu.xlsx",index_col = 0, header=0)
 
-data['NGO_Country_Budget_Previous_Year'] = np.log(data['NGO_Country_Budget_Previous_Year']) #skew data
-data['Total_subvencion_en_el_Pais_y_Anyo'] = np.log(data['Total_subvencion_en_el_Pais_y_Anyo'])
 data['Gross_National_Income'] = np.log(data['Gross_National_Income'])
 data['Public_Grant'] = np.log(data['Public_Grant'])
 data['Total_Fondos'] = np.log(data['Total_Fondos'])
+data['NGO_Country_Budget_Previous_Year'] = np.log(data['NGO_Country_Budget_Previous_Year']) #skew data
+data['Total_subvencion_en_el_Pais_y_Anyo'] = np.log(data['Total_subvencion_en_el_Pais_y_Anyo'])
 data['Dinero_en_el_proyecto'] = np.log(data['Dinero_en_el_proyecto']) #skew data
-data['Anyo_ONG'] = 2020-data['Anyo_ONG']
+
 data[data < 0] = 0
 
 scaler = MinMaxScaler(feature_range=(0, 1))
@@ -77,7 +78,6 @@ for root, dirs, files in os.walk(path):
             proyectos['Gross_National_Income'] = np.log(proyectos['Gross_National_Income'])
             proyectos['Public_Grant'] = np.log(proyectos['Public_Grant'])
             proyectos['Dinero_en_el_proyecto'] = np.log(proyectos['Dinero_en_el_proyecto'])
-            proyectos['Anyo_ONG'] = 2020-proyectos['Anyo_ONG']
             proyectos[proyectos < 0] = 0
             
             for index, row in proyectos.iterrows():
@@ -113,7 +113,7 @@ for ong in training_LSTM:
                 data = training_LSTM[ong][country][ages[posAge]]
                 newdata.append(data)
             else:
-                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0])
+                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
             yR = 0
             y = 0
             if ages[posAge+1] in training_LSTM[ong][country]:
@@ -122,7 +122,7 @@ for ong in training_LSTM:
                 yR = yR_LSTM[ong][country][ages[posAge+1]]
                 y = y_LSTM[ong][country][ages[posAge+1]]
             else:
-                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0])
+                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
             training_LSTM_2.append(newdata)
             y_LSTM_2.append(y)
             yR_LSTM_2.append(yR)
@@ -133,7 +133,8 @@ for ong in training_LSTM:
                 data = training_LSTM[ong][country][ages[posAge]]
                 newdata.append(data)
             else:
-                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0])
+                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+            
             if ages[posAge]=="2016":
                 yR = 0
                 y = 0
@@ -144,8 +145,10 @@ for ong in training_LSTM:
                 y_LSTM_8.append(y)
                 yR_LSTM_8.append(yR)
 
-training_LSTM_2_pad = sequence.pad_sequences(training_LSTM_2,dtype='float32')              
 training_LSTM_8_pad = sequence.pad_sequences(training_LSTM_8,dtype='float32')              
+
+
+training_LSTM_2_pad = sequence.pad_sequences(training_LSTM_2,dtype='float32')              
 
 ######################################regressio 8
 import time
@@ -161,14 +164,14 @@ model.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1],
 model.add(BatchNormalization())
 
 model.add(Dense(1,activation="sigmoid"))
-nadam_opt = keras.optimizers.Nadam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
+nadam_opt = optimizers.Nadam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
 
 model.compile(loss='mean_squared_error', optimizer=nadam_opt,metrics = ["mae"])
 es = EarlyStopping(monitor='val_loss',patience=100)
-model.fit(training_LSTM_8_pad, yR_LSTM_8, epochs=50)
+model.fit(training_LSTM_8_pad, np.asarray(yR_LSTM_8), epochs=50)
 final = time.time()
 
-model.save("./regKeras.model")
+#model.save("./regKeras.model")
 
 
 #training_LSTM_8_pad_copy = training_LSTM_8_pad[:]
@@ -178,9 +181,42 @@ pickle.dump(training_LSTM_8_pad,open("./background_8","wb"))
 
 explainer = shap.DeepExplainer(model,training_LSTM_8_pad)
 
-shapley_values_test_8_R = explainer.shap_values(training_LSTM_8_pad)
+training_LSTM_8_pad_R = explainer.shap_values(training_LSTM_8_pad)
 
-pickle.dump(shapley_values_test_8_R,open("./fitxerShapleyLSTM_8_R","wb"))  
+pickle.dump(training_LSTM_8_pad_R,open("./fitxerShapleyLSTM_8_R","wb"))  
+
+
+
+model_bin = Sequential()
+
+model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
+                           recurrent_dropout=0.2,return_sequences=True))
+model_bin.add(BatchNormalization())
+model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
+model_bin.add(BatchNormalization())
+model_bin.add(Dense(1, activation="sigmoid"))
+nadam_opt = optimizers.Nadam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
+
+model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
+model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=50)
+final = time.time()
+
+model_bin.save("./binaryKeras.model")
+
+explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
+
+training_LSTM_8_pad_B = explainer_bin.shap_values(training_LSTM_8_pad)
+
+pickle.dump(training_LSTM_8_pad_B,open("./fitxerShapleyLSTM_8_B","wb"))  
+
+training_LSTM_8_pad_B = pickle.load(open("./fitxerShapleyLSTM_8_B","rb"))
+training_LSTM_8_pad_R = pickle.load(open("./fitxerShapleyLSTM_8_R","rb"))
+
+
+data = [[2,4],[3,5]]
+data2 = data[:]
+
+data2[0]=1
 
 
 absSHAP_R = []
@@ -189,45 +225,52 @@ absNegSHAP_R = []
 sSHAP_R = []
 sPosSHAP_R = []
 sNegSHAP_R = []
-for i in range(len(shapley_values_test_8_R[0][0])):
+for i in range(len(training_LSTM_8_pad_R[0][0])):
     data = []
-    for j in range(len(shapley_values_test_8_R[0][0][0])):
+    for j in range(len(training_LSTM_8_pad_R[0][0][0])):
         data.append([])
-    absSHAP_R.append(data)
-    absPosSHAP_R.append(data[:])
-    absNegSHAP_R.append(data[:])
-    sSHAP_R.append(data[:])
-    sPosSHAP_R.append(data[:])
-    sNegSHAP_R.append(data[:])
+    absSHAP_R.append(copy.deepcopy(data))
+    absPosSHAP_R.append(copy.deepcopy(data))
+    absNegSHAP_R.append(copy.deepcopy(data))
+    sSHAP_R.append(copy.deepcopy(data))
+    sPosSHAP_R.append(copy.deepcopy(data))
+    sNegSHAP_R.append(copy.deepcopy(data))
 
-for i in range(len(shapley_values_test_8_R[0])):
-    for j in range(len(shapley_values_test_8_R[0][0])):
-        for k in range(len(shapley_values_test_8_R[0][0][0])):
-            absSHAP_R[j][k].append(abs(shapley_values_test_8_R[0][i][j][k]))
-            sSHAP_R[j][k].append(shapley_values_test_8_R[0][i][j][k])
+i = 0
+j = 0
+k = 0
+
+for i in range(len(training_LSTM_8_pad_R[0])):
+    for j in range(len(training_LSTM_8_pad_R[0][0])):
+        for k in range(len(training_LSTM_8_pad_R[0][0][0])):
+            #print(training_LSTM_8_pad_R[0][i][j][k],abs(training_LSTM_8_pad_R[0][i][j][k]))
+            absSHAP_R[j][k].append(abs(training_LSTM_8_pad_R[0][i][j][k]))
+            sSHAP_R[j][k].append(training_LSTM_8_pad_R[0][i][j][k])
+
+absSHAP_R[0][0][1]
+sSHAP_R[0][0][1]
 
 for i in range(len(yR_LSTM_8)):
     if yR_LSTM_8[i]>0:
-        for j in range(len(shapley_values_test_8_R[0][0])):
-            for k in range(len(shapley_values_test_8_R[0][0][0])):
-                absPosSHAP_R[j][k].append(abs(shapley_values_test_8_R[0][i][j][k]))
-                sPosSHAP_R[j][k].append(shapley_values_test_8_R[0][i][j][k])
+        for j in range(len(training_LSTM_8_pad_R[0][0])):
+            for k in range(len(training_LSTM_8_pad_R[0][0][0])):
+                absPosSHAP_R[j][k].append(abs(training_LSTM_8_pad_R[0][i][j][k]))
+                sPosSHAP_R[j][k].append(training_LSTM_8_pad_R[0][i][j][k])
     else:
-        for j in range(len(shapley_values_test_8_R[0][0])):
-            for k in range(len(shapley_values_test_8_R[0][0][0])):
-                absNegSHAP_R[j][k].append(abs(shapley_values_test_8_R[0][i][j][k]))
-                sNegSHAP_R[j][k].append(shapley_values_test_8_R[0][i][j][k])
-        
-    
+        for j in range(len(training_LSTM_8_pad_R[0][0])):
+            for k in range(len(training_LSTM_8_pad_R[0][0][0])):
+                absNegSHAP_R[j][k].append(abs(training_LSTM_8_pad_R[0][i][j][k]))
+                sNegSHAP_R[j][k].append(training_LSTM_8_pad_R[0][i][j][k])
+   
 
 for i in range(len(absSHAP_R)):
     for j in range(len(absSHAP_R[i])):
-        absSHAP_R[i][j]=sum(absSHAP_R[i][j])/6223.0
-        absPosSHAP_R[i][j]=sum(absPosSHAP_R[i][j])/625.0
-        absNegSHAP_R[i][j]=sum(absNegSHAP_R[i][j])/5598.0
-        sSHAP_R[i][j]=sum(sSHAP_R[i][j])/6223.0
-        sPosSHAP_R[i][j]=sum(sPosSHAP_R[i][j])/625.0
-        sNegSHAP_R[i][j]=sum(sNegSHAP_R[i][j])/5598.0
+        absSHAP_R[i][j]=sum(absSHAP_R[i][j])/len(absSHAP_R[i][j])
+        absPosSHAP_R[i][j]=sum(absPosSHAP_R[i][j])/len(absPosSHAP_R[i][j])
+        absNegSHAP_R[i][j]=sum(absNegSHAP_R[i][j])/len(absNegSHAP_R[i][j])
+        sSHAP_R[i][j]=sum(sSHAP_R[i][j])/len(sSHAP_R[i][j])
+        sPosSHAP_R[i][j]=sum(sPosSHAP_R[i][j])/len(sPosSHAP_R[i][j])
+        sNegSHAP_R[i][j]=sum(sNegSHAP_R[i][j])/len(sNegSHAP_R[i][j])
 
 
 absSHAP_R_pad = sequence.pad_sequences(absSHAP_R,dtype='float32')              
@@ -238,101 +281,85 @@ sPosSHAP_R_pad = sequence.pad_sequences(sPosSHAP_R,dtype='float32')
 sNegSHAP_R_pad = sequence.pad_sequences(sNegSHAP_R,dtype='float32')              
 
 
-dadesShapley = shapley_values_test_8_R[0]
-
-yR_LSTM_8[4]
-
-dadesShapley[0]
-
-
-####################################binari
-
-import time
-inici = time.time()
-model_bin = Sequential()
-
-model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
-                           recurrent_dropout=0.2,return_sequences=True))
-model_bin.add(BatchNormalization())
-#model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2,return_sequences=True))
-#model_bin.add(BatchNormalization())
-model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
-model_bin.add(BatchNormalization())
-#model_bin.add(Dropout(0.1))
-#model_bin.add(Dense(100, activation="relu"))
-model_bin.add(Dense(1, activation="sigmoid"))
-nadam_opt = keras.optimizers.Nadam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
-
-model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
-model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=50)
-final = time.time()
-
-model_bin.save("./binaryKeras.model")
-
-
-
-explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
-
-shapley_values_test_8_B = explainer_bin.shap_values(training_LSTM_8_pad)
-
-pickle.dump(shapley_values_test_8_B,open("./fitxerShapleyLSTM_8_B","wb"))  
 
 
 
 
-absSHAP = []
-absPosSHAP = []
-absNegSHAP = []
-sSHAP = []
-sPosSHAP = []
-sNegSHAP = []
-for i in range(len(shapley_values_test_8_B[0][0])):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################3
+absSHAP_B = []
+absPosSHAP_B = []
+absNegSHAP_B = []
+sSHAP_B = []
+sPosSHAP_B = []
+sNegSHAP_B = []
+for i in range(len(training_LSTM_8_pad_B[0][0])):
     data = []
-    for j in range(len(shapley_values_test_8_B[0][0][0])):
+    for j in range(len(training_LSTM_8_pad_B[0][0][0])):
         data.append([])
-    absSHAP.append(data)
-    absPosSHAP.append(data[:])
-    absNegSHAP.append(data[:])
-    sSHAP.append(data[:])
-    sPosSHAP.append(data[:])
-    sNegSHAP.append(data[:])
+    absSHAP_B.append(copy.deepcopy(data))
+    absPosSHAP_B.append(copy.deepcopy(data))
+    absNegSHAP_B.append(copy.deepcopy(data))
+    sSHAP_B.append(copy.deepcopy(data))
+    sPosSHAP_B.append(copy.deepcopy(data))
+    sNegSHAP_B.append(copy.deepcopy(data))
 
-for i in range(len(shapley_values_test_8_B[0])):
-    for j in range(len(shapley_values_test_8_B[0][0])):
-        for k in range(len(shapley_values_test_8_B[0][0][0])):
-            absSHAP[j][k].append(abs(shapley_values_test_8_B[0][i][j][k]))
-            sSHAP[j][k].append(shapley_values_test_8_B[0][i][j][k])
+i = 0
+j = 0
+k = 0
+
+for i in range(len(training_LSTM_8_pad_B[0])):
+    for j in range(len(training_LSTM_8_pad_B[0][0])):
+        for k in range(len(training_LSTM_8_pad_B[0][0][0])):
+            #print(training_LSTM_8_pad_B[0][i][j][k],abs(training_LSTM_8_pad_B[0][i][j][k]))
+            absSHAP_B[j][k].append(abs(training_LSTM_8_pad_B[0][i][j][k]))
+            sSHAP_B[j][k].append(training_LSTM_8_pad_B[0][i][j][k])
+
+absSHAP_B[0][0][1]
+sSHAP_B[0][0][1]
 
 for i in range(len(yR_LSTM_8)):
     if yR_LSTM_8[i]>0:
-        for j in range(len(shapley_values_test_8_B[0][0])):
-            for k in range(len(shapley_values_test_8_B[0][0][0])):
-                absPosSHAP[j][k].append(abs(shapley_values_test_8_B[0][i][j][k]))
-                sPosSHAP[j][k].append(shapley_values_test_8_B[0][i][j][k])
+        for j in range(len(training_LSTM_8_pad_B[0][0])):
+            for k in range(len(training_LSTM_8_pad_B[0][0][0])):
+                absPosSHAP_B[j][k].append(abs(training_LSTM_8_pad_B[0][i][j][k]))
+                sPosSHAP_B[j][k].append(training_LSTM_8_pad_B[0][i][j][k])
     else:
-        for j in range(len(shapley_values_test_8_B[0][0])):
-            for k in range(len(shapley_values_test_8_B[0][0][0])):
-                absNegSHAP[j][k].append(abs(shapley_values_test_8_B[0][i][j][k]))
-                sNegSHAP[j][k].append(shapley_values_test_8_B[0][i][j][k])
-        
-    
+        for j in range(len(training_LSTM_8_pad_B[0][0])):
+            for k in range(len(training_LSTM_8_pad_B[0][0][0])):
+                absNegSHAP_B[j][k].append(abs(training_LSTM_8_pad_B[0][i][j][k]))
+                sNegSHAP_B[j][k].append(training_LSTM_8_pad_B[0][i][j][k])
+   
 
-for i in range(len(absSHAP)):
-    for j in range(len(absSHAP[i])):
-        absSHAP[i][j]=sum(absSHAP[i][j])/6223.0
-        absPosSHAP[i][j]=sum(absPosSHAP[i][j])/625.0
-        absNegSHAP[i][j]=sum(absNegSHAP[i][j])/5598.0
-        sSHAP[i][j]=sum(sSHAP[i][j])/6223.0
-        sPosSHAP[i][j]=sum(sPosSHAP[i][j])/625.0
-        sNegSHAP[i][j]=sum(sNegSHAP[i][j])/5598.0
+for i in range(len(absSHAP_B)):
+    for j in range(len(absSHAP_B[i])):
+        absSHAP_B[i][j]=sum(absSHAP_B[i][j])/len(absSHAP_B[i][j])
+        absPosSHAP_B[i][j]=sum(absPosSHAP_B[i][j])/len(absPosSHAP_B[i][j])
+        absNegSHAP_B[i][j]=sum(absNegSHAP_B[i][j])/len(absNegSHAP_B[i][j])
+        sSHAP_B[i][j]=sum(sSHAP_B[i][j])/len(sSHAP_B[i][j])
+        sPosSHAP_B[i][j]=sum(sPosSHAP_B[i][j])/len(sPosSHAP_B[i][j])
+        sNegSHAP_B[i][j]=sum(sNegSHAP_B[i][j])/len(sNegSHAP_B[i][j])
 
 
-absSHAP_pad = sequence.pad_sequences(absSHAP,dtype='float32')              
-absPosSHAP_pad = sequence.pad_sequences(absPosSHAP,dtype='float32')              
-absNegSHAP_pad = sequence.pad_sequences(absNegSHAP,dtype='float32')  
-sSHAP_pad = sequence.pad_sequences(sSHAP,dtype='float32')              
-sPosSHAP_pad = sequence.pad_sequences(sPosSHAP,dtype='float32')              
-sNegSHAP_pad = sequence.pad_sequences(sNegSHAP,dtype='float32')   
+absSHAP_B_pad = sequence.pad_sequences(absSHAP_B,dtype='float32')              
+absPosSHAP_B_pad = sequence.pad_sequences(absPosSHAP_B,dtype='float32')              
+absNegSHAP_B_pad = sequence.pad_sequences(absNegSHAP_B,dtype='float32')  
+sSHAP_B_pad = sequence.pad_sequences(sSHAP_B,dtype='float32')              
+sPosSHAP_B_pad = sequence.pad_sequences(sPosSHAP_B,dtype='float32')              
+sNegSHAP_B_pad = sequence.pad_sequences(sNegSHAP_B,dtype='float32')    
 
 
 

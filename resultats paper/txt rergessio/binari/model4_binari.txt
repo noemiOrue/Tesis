@@ -1,0 +1,40 @@
+Call:
+glm(formula = Visitado ~ ONU + Gross_National_Income + Public_Grant + 
+    Total_Fondos + Proporcion_Fondos_Privados + Proporcion_Fondos_MAE + 
+    Total_subvencion_en_el_Pais_y_Anyo + Vision_ONGD_LatinAmerica + 
+    Vision_ONGD_Africa + Vision_ONGD_Universal + Internacional + 
+    Colony, family = "binomial", data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.1010  -0.5228  -0.3795  -0.2852   3.1401  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                        -3.135e+00  1.075e-01 -29.162  < 2e-16 ***
+ONU                                 2.742e-01  4.033e-02   6.799 1.05e-11 ***
+Gross_National_Income              -2.398e-02  4.787e-03  -5.011 5.43e-07 ***
+Public_Grant                        1.638e-02  2.875e-03   5.699 1.21e-08 ***
+Total_Fondos                        2.117e-08  8.900e-10  23.789  < 2e-16 ***
+Proporcion_Fondos_Privados          1.490e+00  6.896e-02  21.600  < 2e-16 ***
+Proporcion_Fondos_MAE               6.974e-01  7.973e-02   8.747  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -1.514e-02  1.759e-03  -8.605  < 2e-16 ***
+Vision_ONGD_LatinAmerica            2.926e-01  8.422e-02   3.474 0.000513 ***
+Vision_ONGD_Africa                 -1.517e+00  1.498e-01 -10.128  < 2e-16 ***
+Vision_ONGD_Universal              -4.708e-02  7.628e-02  -0.617 0.537118    
+Internacional                       3.151e-01  5.596e-02   5.631 1.80e-08 ***
+Colony                              1.718e+00  3.735e-02  46.011  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30239  on 37225  degrees of freedom
+Residual deviance: 25967  on 37213  degrees of freedom
+AIC: 25993
+
+Number of Fisher Scoring iterations: 6
+
+> nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+> 1-logLik(modelbin4)/logLik(nullmod)
+'log Lik.' 0.1412777 (df=13)

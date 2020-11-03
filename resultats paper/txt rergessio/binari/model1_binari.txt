@@ -1,0 +1,43 @@
+Call:
+glm(formula = Visitado ~ ONU + Gross_National_Income + Public_Grant + 
+    Total_Fondos + Proporcion_Fondos_Privados + Proporcion_Fondos_MAE + 
+    NGO_Country_Budget_Previous_Year + Total_subvencion_en_el_Pais_y_Anyo + 
+    Vision_ONGD_LatinAmerica + Vision_ONGD_Africa + Vision_ONGD_Universal + 
+    Internacional + Colony + Delegacion, family = "binomial", 
+    data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.4981  -0.2876  -0.1955  -0.1451   3.2137  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                        -3.947e+00  1.551e-01 -25.449  < 2e-16 ***
+ONU                                 9.438e-02  6.117e-02   1.543  0.12284    
+Gross_National_Income              -1.516e-02  7.643e-03  -1.983  0.04736 *  
+Public_Grant                       -2.863e-02  5.540e-03  -5.169 2.36e-07 ***
+Total_Fondos                        1.473e-08  1.416e-09  10.400  < 2e-16 ***
+Proporcion_Fondos_Privados          1.674e+00  1.087e-01  15.398  < 2e-16 ***
+Proporcion_Fondos_MAE               6.777e-01  1.344e-01   5.040 4.64e-07 ***
+NGO_Country_Budget_Previous_Year    2.613e-01  3.448e-03  75.777  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -2.268e-02  2.656e-03  -8.537  < 2e-16 ***
+Vision_ONGD_LatinAmerica           -1.074e-01  1.194e-01  -0.899  0.36867    
+Vision_ONGD_Africa                 -5.784e-01  2.045e-01  -2.829  0.00467 ** 
+Vision_ONGD_Universal              -4.123e-01  1.029e-01  -4.008 6.13e-05 ***
+Internacional                       2.931e-01  9.331e-02   3.141  0.00168 ** 
+Colony                              8.217e-01  5.973e-02  13.756  < 2e-16 ***
+Delegacion                          2.910e+00  9.504e-02  30.623  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30239  on 37225  degrees of freedom
+Residual deviance: 12573  on 37211  degrees of freedom
+AIC: 12603
+
+Number of Fisher Scoring iterations: 6
+
+> nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+> 1-logLik(modelbin1)/logLik(nullmod)
+'log Lik.' 0.584221 (df=15)

@@ -10,6 +10,9 @@ from pandas import ExcelFile
 import numpy
 import unicodedata
 import _pickle as pickle
+import glob
+import copy
+
 
 import os
 import csv
@@ -79,13 +82,13 @@ def revisionNombres(inputName):
         return "fontilles"
     elif inputName in ["fere ceca","federacion espanola de religiosos de ensenanza - titulares de centros catolicos"]:
         return "fere-ceca"
-    elif inputName in ["fisc-compania de maria","fisc compania maria","fisc compania de maria"]:
+    elif inputName in ["fisc-compania de maria","fisc compania maria","fisc compania de maria","fisc"]:
         return "fisc-compañia de maria"
     elif inputName in ["fundacion intered"]:
         return "intered"
     elif inputName in ["instituto sindical de cooperacion al desarrollo (iscod)"]:
         return "iscod"
-    elif inputName in ["juan ciudad ongd"]:
+    elif inputName in ["juan ciudad ongd", ""]:
         return "juan ciudad"
     elif inputName in ["fundacion mundubat - mundubat fundazioa"]:
         return "mundubat"
@@ -103,7 +106,7 @@ def revisionNombres(inputName):
         return "mpdl"
     elif inputName in ["fundacion cideal de cooperacion e investigacion","fundacion cideal","centro de comunicacion, investigacion y documentacion entre europa, espana y america latina"]:
         return "cideal"
-    elif inputName in ["fundacion de religiosos para la salud","fundacion de religiosos para la salud (frs)","fundacin de religiosos para la salud","fundacion religiosa salud"]:
+    elif inputName in ["fundacion de religiosos para la salud","fundacion de religiosos para la salud (frs)","fundacin de religiosos para la salud","fundacion religiosa salud","fundacion religiosos para la salud"]:
         return "frs"
     elif inputName in ["fundacion benefica del valle","fundacion del valle","fundacion valle"]:
         return "fundación valle"
@@ -218,6 +221,34 @@ oldColonies = oldColonies + ["paraguay","uruguay","cuba","puerto rico"]
 oldColonies = oldColonies + ["filipinas","guam", "marruecos","sahara occidental","guinea ecuatorial"] 
 
 
+delegacionesONG = {}
+path = 'C:/Users/bcoma/Documents/GitHub/Tesis_UB/dades/delegaciones'
+for root, dirs,files in os.walk(path):
+    for dire in dirs:
+        ong = dire[dire.index("_")+1:]
+        ong =  unicodedata.normalize('NFD', ong.lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
+        ong = revisionNombres(ong)
+        delegacionesONG[ong] = {}
+        for file in glob.glob(path+"/"+dire+"/*20*"):
+            print("DINTRE")
+            fileName = os.path.basename(file)
+            if "20" in file:
+                f = open(file,encoding='utf-8', errors='ignore')
+                delegacionesONG[ong][int(fileName[0:4])] = []
+                dades = f.readlines()
+                for line in dades[1:]:
+                    if line != '\n':
+                        pais = line[:line.index("(")].strip()
+                        pais = unicodedata.normalize('NFD', pais.lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
+                        pais = revisionPaises(pais)
+                        delegacionesONG[ong][int(fileName[:4])].append(pais)
+        if 2012 in delegacionesONG[ong]:
+            delegacionesONG[ong][2013] = copy.deepcopy(delegacionesONG[ong][2012])
+        if 2015 in delegacionesONG[ong]:
+            delegacionesONG[ong][2014] = copy.deepcopy(delegacionesONG[ong][2015])
+
+
+
 
 dinerosEspanya = {}
 ong = {}
@@ -306,8 +337,11 @@ new_header = ingresos2014.iloc[4]
 ingresos2014 = ingresos2014[5:] 
 ingresos2014.columns = new_header 
 for i in range(0,len(ingresos2014)):
+    #i = 10
     info = ingresos2014.iloc[i]
     info = info.replace(" ",0)
+    posTotalPrivados = list(info.index).index("TOTAL servicios prestados")+1
+    posTotalPublicos = list(info.index).index("Otros fondos públicos")+1
     if isinstance(info["Nombre"], str):
         ong_nom = unicodedata.normalize('NFD', info["Nombre"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
         ong_nom = revisionNombres(ong_nom)
@@ -322,10 +356,12 @@ for i in range(0,len(ingresos2014)):
         ong[ong_nom][2014]["INGRESOS"]["TOTAL EMPRESAS"] = float(info["TOTAL EMPRESAS"])
         ong[ong_nom][2014]["INGRESOS"]["TOTAL venta productos"] = float(info["TOTAL venta productos"])
         ong[ong_nom][2014]["INGRESOS"]["TOTAL servicios prestados"] = float(info["TOTAL servicios prestados"])
+        ong[ong_nom][2014]["INGRESOS"]["TOTAL fondos privados"] = float(list(info)[posTotalPrivados])
         ong[ong_nom][2014]["INGRESOS"]["TOTAL ESTATAL"] = float(info["TOTAL ESTATAL"])
         ong[ong_nom][2014]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info["TOTAL AUTONÓMICO"])
         ong[ong_nom][2014]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info["TOTAL INTERNACIONAL"])
         ong[ong_nom][2014]["INGRESOS"]["Otros fondos públicos"] = float(info["Otros fondos públicos"])
+        ong[ong_nom][2014]["INGRESOS"]["TOTAL fondos públicos"] = float(list(info)[posTotalPublicos])
         
 ingresos2015 = pd.read_excel('../dades/Datos_vf/ongd9_informe2014-2015_Ingresos.xlsx', sheet_name='Fondos2015')
 new_header = ingresos2015.iloc[4] 
@@ -334,6 +370,8 @@ ingresos2015.columns = new_header
 for i in range(0,len(ingresos2015)):
     info = ingresos2015.iloc[i]
     info = info.replace(" ",0)
+    posTotalPrivados = list(info.index).index("TOTAL otros servicios")+1
+    posTotalPublicos = list(info.index).index("Otros fondos públicos")+1
     if isinstance(info["Nombre"], str):
 
         ong_nom = unicodedata.normalize('NFD', info["Nombre"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
@@ -349,11 +387,13 @@ for i in range(0,len(ingresos2015)):
         ong[ong_nom][2015]["INGRESOS"]["TOTAL EMPRESAS"] = float(info["TOTAL EMPRESAS"])
         ong[ong_nom][2015]["INGRESOS"]["TOTAL venta productos"] = float(info["TOTAL ventas"])
         ong[ong_nom][2015]["INGRESOS"]["TOTAL otros servicios"] = float(info["TOTAL otros servicios"])
+        ong[ong_nom][2015]["INGRESOS"]["TOTAL fondos privados"] = float(list(info)[posTotalPrivados])
         ong[ong_nom][2015]["INGRESOS"]["TOTAL ESTATAL"] = float(info["TOTAL ESTATAL"])
         ong[ong_nom][2015]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info["TOTAL AUTONÓMICO"])
         ong[ong_nom][2015]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info["TOTAL INTERNACIONAL"])
         ong[ong_nom][2015]["INGRESOS"]["Otros fondos públicos"] = float(info["Otros fondos públicos"])
-    
+        ong[ong_nom][2015]["INGRESOS"]["TOTAL fondos públicos"] = float(list(info)[posTotalPublicos])
+
 
 ingresos2016 = pd.read_excel('../dades/Datos_vf/ongd9_informe2016_Ingresos.xlsx', sheet_name='Fondos')
 new_header = ingresos2016.iloc[4] 
@@ -362,6 +402,9 @@ ingresos2016.columns = new_header
 for i in range(0,len(ingresos2016)):
     info = ingresos2016.iloc[i]
     info = info.replace(" ",0)
+    info = info.replace("s.d.",0)
+    posTotalPrivados = list(info.index).index("TOTAL servicios prestados")+1
+    posTotalPublicos = list(info.index).index("Otros   ")+1
     if isinstance(info["Nombre"], str):
         ong_nom = unicodedata.normalize('NFD', info["Nombre"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") 
         ong_nom = revisionNombres(ong_nom)
@@ -377,10 +420,13 @@ for i in range(0,len(ingresos2016)):
         ong[ong_nom][2016]["INGRESOS"]["TOTAL EMPRESAS"] = float(info["TOTAL  Fondo de empresas fundaciones"])
         ong[ong_nom][2016]["INGRESOS"]["TOTAL venta productos"] = float(info["TOTAL venta de productos"])
         ong[ong_nom][2016]["INGRESOS"]["TOTAL otros servicios"] = float(info["TOTAL servicios prestados"])
+        ong[ong_nom][2016]["INGRESOS"]["TOTAL fondos privados"] = float(list(info)[posTotalPrivados])
         ong[ong_nom][2016]["INGRESOS"]["TOTAL ESTATAL"] = float(info["TOTAL fondos MAE y otros ministerios"])
         ong[ong_nom][2016]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info["TOTAL fondos descentralizados"])
         ong[ong_nom][2016]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info["TOTAL fondos internacionales"])
         ong[ong_nom][2016]["INGRESOS"]["Otros fondos públicos"] = float(info["Otros   "])
+        ong[ong_nom][2016]["INGRESOS"]["TOTAL fondos públicos"] = float(list(info)[posTotalPublicos])
+
 
 ingresos = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2013.xls', sheet_name='Anex 2')
 header_ingresos = ingresos.iloc[5] 
@@ -407,10 +453,13 @@ for i in range(0,len(ingresos)):
         ong[ong_nom][2013]["INGRESOS"]["TOTAL EMPRESAS"] = float(info[6])
         ong[ong_nom][2013]["INGRESOS"]["TOTAL venta productos"] = float(info[7])
         ong[ong_nom][2013]["INGRESOS"]["TOTAL otros servicios"] = float(info[8])
+        ong[ong_nom][2013]["INGRESOS"]["TOTAL fondos privados"] = float(info[9])
+
         ong[ong_nom][2013]["INGRESOS"]["TOTAL ESTATAL"] = float(info[12])
         ong[ong_nom][2013]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info[13])
         ong[ong_nom][2013]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info[14])
         ong[ong_nom][2013]["INGRESOS"]["Otros fondos públicos"] = float(info[15])
+        ong[ong_nom][2013]["INGRESOS"]["TOTAL fondos públicos"] = float(info[16])
 
 ingresos = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 2')
 header_ingresos = ingresos.iloc[5] #grab the first row for the header
@@ -438,10 +487,15 @@ for i in range(0,len(ingresos)):
         ong[ong_nom][2012]["INGRESOS"]["TOTAL EMPRESAS"] = float(info[6])
         ong[ong_nom][2012]["INGRESOS"]["TOTAL venta productos"] = float(info[7])
         ong[ong_nom][2012]["INGRESOS"]["TOTAL otros servicios"] = float(info[8])
+        ong[ong_nom][2012]["INGRESOS"]["TOTAL fondos privados"] = float(info[9])
+
+        
         ong[ong_nom][2012]["INGRESOS"]["TOTAL ESTATAL"] = float(info[12])
         ong[ong_nom][2012]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info[13])
         ong[ong_nom][2012]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info[14])
         ong[ong_nom][2012]["INGRESOS"]["Otros fondos públicos"] = float(info[15])
+        ong[ong_nom][2012]["INGRESOS"]["TOTAL fondos públicos"] = float(info[16])
+
 
 
 voluntarios = pd.read_excel('../dades/Datos_vf/Coordinadora ONG Desarrollo España - Datos año 2012.xls', sheet_name='Anex 9-bsocial')
@@ -810,11 +864,12 @@ for i in range(0,len(proyectos)):
         ong[ong_nom][2009]["INGRESOS"]["TOTAL EMPRESAS"] = float(info["13.3 Fondo de empresas fundaciones"])
         ong[ong_nom][2009]["INGRESOS"]["TOTAL venta productos"] = float(info["13.4 Venta de productos"])
         ong[ong_nom][2009]["INGRESOS"]["TOTAL servicios prestados"] = float(info["13.5 Servicios prestados y  Otros fondos"])
+        ong[ong_nom][2009]["INGRESOS"]["TOTAL fondos privados"] = float(info["13.6 Total Fondos privados"])
         ong[ong_nom][2009]["INGRESOS"]["TOTAL ESTATAL"] = float(info["12.1 MAE y otros ministerios"])
         ong[ong_nom][2009]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info["12.2 Cooperación descentralizada"])
         ong[ong_nom][2009]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info["12.3 Ámbito internacional"])
         ong[ong_nom][2009]["INGRESOS"]["Otros fondos públicos"] = float(info["12.4 Otros fondos"])
-        
+        ong[ong_nom][2009]["INGRESOS"]["TOTAL fondos públicos"] = float(info["12.5 Total Fondos Públicos"])
         
         ong[ong_nom][2009]["TRABAJADORES"] = {}
         ong[ong_nom][2009]["TRABAJADORES"]["España"] = float(info["15.1 Oficina Central"]) +float(info["15.2 Delegaciones"])
@@ -858,18 +913,24 @@ for root, dirs, files in os.walk(path):
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL AUTONÓMICO"] = 0
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL INTERNACIONAL"] = 0
                 ong[ong_nom][2011]["INGRESOS"]["Otros fondos públicos"] = 0
+                
+                ong[ong_nom][2011]["INGRESOS"]["TOTAL fondos privados"] = 0
+                ong[ong_nom][2011]["INGRESOS"]["TOTAL fondos públicos"] = 0
+                
             else:
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL cuotas periódicas"] = float(info[posMoney+1][:-2].replace('.', '').replace(',','.'))+float(info[posMoney+2][:-2].replace('.', '').replace(',','.'))+float(info[posMoney+3][:-2].replace('.', '').replace(',','.'))
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL donaciones"] = float(info[posMoney+4][:-2].replace('.', '').replace(',','.'))
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL EMPRESAS"] = float(info[posMoney+5][:-2].replace('.', '').replace(',','.'))#+float(info[posMoney+5][:-2])
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL venta productos"] = float(info[posMoney+6][:-2].replace('.', '').replace(',','.'))
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL servicios prestados"] = float(info[posMoney+7][:-2].replace('.', '').replace(',','.'))+float(info[posMoney+8][:-2].replace('.', '').replace(',','.'))
+                ong[ong_nom][2011]["INGRESOS"]["TOTAL fondos privados"] = float(info[posMoney][:-2].replace('.', '').replace(',','.'))
                 
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL ESTATAL"] = float(info[posMoney+10][:-2].replace('.', '').replace(',','.'))
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info[posMoney+11][:-2].replace('.', '').replace(',','.'))
                 ong[ong_nom][2011]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info[posMoney+12][:-2].replace('.', '').replace(',','.'))
                 ong[ong_nom][2011]["INGRESOS"]["Otros fondos públicos"] = float(info[posMoney+13][:-2].replace('.', '').replace(',','.'))
-            
+                ong[ong_nom][2011]["INGRESOS"]["TOTAL fondos públicos"] = float(info[posMoney+9][:-2].replace('.', '').replace(',','.'))
+
             ong[ong_nom][2011]["TRABAJADORES"] = {}
             ong[ong_nom][2011]["VOLUNTARIOS"] = {}
 
@@ -953,12 +1014,18 @@ for root, dirs, files in os.walk(path):
             ong[ong_nom][2010]["INGRESOS"]["TOTAL EMPRESAS"] = float(info[posMoney+5][:-2].replace('.', '').replace(',','.'))#+float(info[posMoney+5][:-2])
             ong[ong_nom][2010]["INGRESOS"]["TOTAL venta productos"] = float(info[posMoney+6][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2010]["INGRESOS"]["TOTAL servicios prestados"] = float(info[posMoney+7][:-2].replace('.', '').replace(',','.'))+float(info[posMoney+8][:-2].replace('.', '').replace(',','.'))
+            ong[ong_nom][2010]["INGRESOS"]["TOTAL fondos privados"] = float(info[posMoney][:-2].replace('.', '').replace(',','.'))
+
+            
             
             ong[ong_nom][2010]["INGRESOS"]["TOTAL ESTATAL"] = float(info[posMoney+10][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2010]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info[posMoney+11][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2010]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info[posMoney+12][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2010]["INGRESOS"]["Otros fondos públicos"] = float(info[posMoney+13][:-2].replace('.', '').replace(',','.'))
-        
+            ong[ong_nom][2010]["INGRESOS"]["TOTAL fondos públicos"] = float(info[posMoney+9][:-2].replace('.', '').replace(',','.'))
+
+            
+            
             ong[ong_nom][2010]["TRABAJADORES"] = {}
             ong[ong_nom][2010]["VOLUNTARIOS"] = {}
             if not "En España" in info:
@@ -1039,11 +1106,16 @@ for root, dirs, files in os.walk(path):
             ong[ong_nom][2009]["INGRESOS"]["TOTAL EMPRESAS"] = float(info[posMoney+4][:-2].replace('.', '').replace(',','.'))#+float(info[posMoney+5][:-2])
             ong[ong_nom][2009]["INGRESOS"]["TOTAL venta productos"] = float(info[posMoney+5][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2009]["INGRESOS"]["TOTAL servicios prestados"] = float(info[posMoney+6][:-2].replace('.', '').replace(',','.'))+float(info[posMoney+8][:-2].replace('.', '').replace(',','.'))
+            ong[ong_nom][2009]["INGRESOS"]["TOTAL fondos privados"] = float(info[posMoney][:-2].replace('.', '').replace(',','.'))
+
+            
             
             ong[ong_nom][2009]["INGRESOS"]["TOTAL ESTATAL"] = float(info[posMoney+9][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2009]["INGRESOS"]["TOTAL AUTONÓMICO"] = float(info[posMoney+10][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2009]["INGRESOS"]["TOTAL INTERNACIONAL"] = float(info[posMoney+11][:-2].replace('.', '').replace(',','.'))
             ong[ong_nom][2009]["INGRESOS"]["Otros fondos públicos"] = float(info[posMoney+12][:-2].replace('.', '').replace(',','.'))
+            ong[ong_nom][2009]["INGRESOS"]["TOTAL fondos públicos"] = float(info[posMoney+8][:-2].replace('.', '').replace(',','.'))
+
         
             ong[ong_nom][2009]["TRABAJADORES"] = {}
             ong[ong_nom][2009]["VOLUNTARIOS"] = {}
@@ -1240,13 +1312,14 @@ for ong_nom in ongsFer:
     worksheet.write('H1', 'Vision_ONGD_Confessional',bold)
     worksheet.write('I1', 'Vision_ONGD_Universal',bold)
     worksheet.write('J1', 'Public_Funds_MAE',bold)
+    #fer mae i "no mare"
     worksheet.write('K1', 'Public_Funds_Decentralized',bold)
     worksheet.write('L1', 'Public_Funds_Internacional',bold)
     worksheet.write('M1', 'Public_Funds_Other',bold)
     worksheet.write('N1', 'Public_Funds_Total',bold)
     worksheet.write('O1', 'Private_Funds_Cuotas',bold)
-    worksheet.write('P1', 'Public_Funds_Donations',bold)
-    worksheet.write('Q1', 'Public_Funds_Companies',bold)
+    worksheet.write('P1', 'Private_Funds_Donations',bold)
+    worksheet.write('Q1', 'Private_Funds_Companies',bold)
     worksheet.write('R1', 'Fondos_Privados_Venta',bold)
     worksheet.write('S1', 'Fondos_Privados_Servicios',bold)
     worksheet.write('T1', 'Fondos_Privados_Total',bold)
@@ -1264,11 +1337,13 @@ for ong_nom in ongsFer:
     worksheet.write('AF1', 'Total_subvencion_en_el_Pais_y_Anyo',bold)
     worksheet.write('AG1', 'Total_Fondos',bold)
     worksheet.write('AH1', 'Proporcion_Fondos_Privados',bold)
-    worksheet.write('AI1', 'Anyo_ONG',bold)
-    worksheet.write('AJ1', 'Internacional',bold)
-    worksheet.write("AK1", "Colony", bold)
-    worksheet.write('AL1', 'Visitado',bold)
-    worksheet.write('AM1', 'Dinero_en_el_proyecto',bold)
+    worksheet.write('AI1', 'Proporcion_Fondos_MAE',bold)
+    worksheet.write('AJ1', 'Anyo_ONG',bold)
+    worksheet.write('AK1', 'Internacional',bold)
+    worksheet.write("AL1", "Colony", bold)
+    worksheet.write("AM1", "Delegacion", bold)
+    worksheet.write('AN1', 'Visitado',bold)
+    worksheet.write('AO1', 'Dinero_en_el_proyecto',bold)
     
     for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
         if year in ong[ong_nom]:
@@ -1331,81 +1406,71 @@ for ong_nom in ongsFer:
                             worksheet.write(posExcel, 7, 0)
                             worksheet.write(posExcel, 8, 0)
                             
+                        fondosMAE = 0
                         if "INGRESOS" in ong[ong_nom][year]:
-                            total = 0
                             if "TOTAL ESTATAL" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 9, ong[ong_nom][year]["INGRESOS"]["TOTAL ESTATAL"])
-                                total += ong[ong_nom][year]["INGRESOS"]["TOTAL ESTATAL"]
+                                fondosMAE = ong[ong_nom][year]["INGRESOS"]["TOTAL ESTATAL"]
                             else:
                                 worksheet.write(posExcel, 9,0)
                             if "TOTAL AUTONÓMICO" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 10, ong[ong_nom][year]["INGRESOS"]["TOTAL AUTONÓMICO"])
-                                total += ong[ong_nom][year]["INGRESOS"]["TOTAL AUTONÓMICO"]
                             else:
                                 worksheet.write(posExcel, 10,0)
                             if "TOTAL INTERNACIONAL" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 11, ong[ong_nom][year]["INGRESOS"]["TOTAL INTERNACIONAL"])
-                                total += ong[ong_nom][year]["INGRESOS"]["TOTAL INTERNACIONAL"]
                             else:
                                 worksheet.write(posExcel, 11,0)
                             if "Otros fondos públicos" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 12, ong[ong_nom][year]["INGRESOS"]["Otros fondos públicos"])
-                                total+= ong[ong_nom][year]["INGRESOS"]["Otros fondos públicos"]
                             else:
                                 worksheet.write(posExcel, 12,0)
-                            worksheet.write(posExcel, 13, total)
-                            totalFondos = total
-                            total = 0
+                            worksheet.write(posExcel, 13, ong[ong_nom][year]["INGRESOS"]["TOTAL fondos públicos"])
+                            totalFondos = float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos públicos"])
                             if "TOTAL cuotas periódicas" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 14, ong[ong_nom][year]["INGRESOS"]["TOTAL cuotas periódicas"])
-                                total+= ong[ong_nom][year]["INGRESOS"]["TOTAL cuotas periódicas"]
                             else:
                                 worksheet.write(posExcel, 14,0)
                             if "TOTAL donaciones" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 15, ong[ong_nom][year]["INGRESOS"]["TOTAL donaciones"])
-                                total+= ong[ong_nom][year]["INGRESOS"]["TOTAL donaciones"]
                             else:
                                 worksheet.write(posExcel, 15,0)
                             if "TOTAL EMPRESAS" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 16, ong[ong_nom][year]["INGRESOS"]["TOTAL EMPRESAS"])
-                                total+= ong[ong_nom][year]["INGRESOS"]["TOTAL EMPRESAS"]
                             else:
                                 worksheet.write(posExcel, 16,0)
                             if "TOTAL venta productos" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 17, ong[ong_nom][year]["INGRESOS"]["TOTAL venta productos"])
-                                total+= ong[ong_nom][year]["INGRESOS"]["TOTAL venta productos"]
                             else:
                                 worksheet.write(posExcel, 17,0)
                             if "TOTAL otros servicios" in ong[ong_nom][year]["INGRESOS"]:
                                 worksheet.write(posExcel, 18, ong[ong_nom][year]["INGRESOS"]["TOTAL otros servicios"])
-                                total+= ong[ong_nom][year]["INGRESOS"]["TOTAL otros servicios"]
                             else:
                                 worksheet.write(posExcel, 18,0)
-                            worksheet.write(posExcel, 19, total)
-                            totalFondosPrivados = total
-
-                            totalFondos += total
-                        total = 0
+                            worksheet.write(posExcel, 19, ong[ong_nom][year]["INGRESOS"]["TOTAL fondos privados"] )
+                            totalFondos+=float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos privados"])
+                        
                         
                         if "TRABAJADORES" in ong[ong_nom][year]:
+                            totalT = 0
                             if "España" in ong[ong_nom][year]["TRABAJADORES"] and ong[ong_nom][year]["TRABAJADORES"]["España"] not in ["No info","n.d.n.d.",'  ']:
                                 worksheet.write(posExcel, 20, ong[ong_nom][year]["TRABAJADORES"]["España"])
-                                total+= ong[ong_nom][year]["TRABAJADORES"]["España"]
+                                totalT+=ong[ong_nom][year]["TRABAJADORES"]["España"]
                             else:
                                 worksheet.write(posExcel, 20,0)
                             
             
                             if "Extranjero" in ong[ong_nom][year]["TRABAJADORES"] and ong[ong_nom][year]["TRABAJADORES"]["Extranjero"] not in ["No info","n.d.","n.d",' ']:
                                 worksheet.write(posExcel, 21, ong[ong_nom][year]["TRABAJADORES"]["Extranjero"])
-                                total+= ong[ong_nom][year]["TRABAJADORES"]["Extranjero"]
+                                totalT+=ong[ong_nom][year]["TRABAJADORES"]["Extranjero"]
                             else:
                                 worksheet.write(posExcel, 21,0)
                             if "Local" in ong[ong_nom][year]["TRABAJADORES"] and ong[ong_nom][year]["TRABAJADORES"]["Local"] not in ["No info","n.d.","n.d",' ']:
                                 worksheet.write(posExcel, 22, ong[ong_nom][year]["TRABAJADORES"]["Local"])
-                                total+= ong[ong_nom][year]["TRABAJADORES"]["Local"]
+                                totalT+=ong[ong_nom][year]["TRABAJADORES"]["Local"]
                             else:
                                 worksheet.write(posExcel, 22,0)
-                            worksheet.write(posExcel, 23, total)
+                            worksheet.write(posExcel, 23, totalT)
                         
                         worksheet.write(posExcel, 25, 0)
                         worksheet.write(posExcel, 26, 0)
@@ -1424,14 +1489,12 @@ for ong_nom in ongsFer:
                         if "VOLUNTARIOS" in ong[ong_nom][year]:
                             if "España" in ong[ong_nom][year]["VOLUNTARIOS"] and ong[ong_nom][year]["VOLUNTARIOS"]["España"] not in ["No info","n.d.n.d.",'  ']:
                                 worksheet.write(posExcel, 29, ong[ong_nom][year]["VOLUNTARIOS"]["España"])
-                                total+= ong[ong_nom][year]["VOLUNTARIOS"]["España"]
                             else:
                                 worksheet.write(posExcel, 29,0)
                             
             
                             if "Extranjero" in ong[ong_nom][year]["VOLUNTARIOS"] and ong[ong_nom][year]["VOLUNTARIOS"]["Extranjero"] not in ["No info","n.d.","n.d",' ']:
                                 worksheet.write(posExcel, 30, ong[ong_nom][year]["VOLUNTARIOS"]["Extranjero"])
-                                total+= ong[ong_nom][year]["VOLUNTARIOS"]["Extranjero"]
                             else:
                                 worksheet.write(posExcel, 30,0)
                         
@@ -1440,26 +1503,41 @@ for ong_nom in ongsFer:
                             worksheet.write(posExcel, 31,dinerosEspanya[year][pais])
                         else:
                             worksheet.write(posExcel, 31,0)
+                        
+                        print("TOTAL FONDOS",totalFondos)
                         worksheet.write(posExcel, 32,totalFondos)
                         if totalFondos == 0:
                             worksheet.write(posExcel, 33,0)
                         else:
-                            worksheet.write(posExcel, 33,totalFondosPrivados/totalFondos)
-                        if "anyo" in ong[ong_nom]:
-                            worksheet.write(posExcel, 34,ong[ong_nom]["anyo"])
-                            try:
-                                worksheet.write(posExcel, 35,ong[ong_nom]["internacional"])
-                            except:
-                                worksheet.write(posExcel, 35,0)
-                        else:
+                            worksheet.write(posExcel, 33,float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos privados"])/float(totalFondos))
+                        if totalFondos == 0:
                             worksheet.write(posExcel, 34,0)
-                            worksheet.write(posExcel, 35,0)
-                        if pais in oldColonies:
-                            worksheet.write(posExcel, 36,1)
                         else:
+                            worksheet.write(posExcel, 34,float(fondosMAE)/float(totalFondos))
+                        if "anyo" in ong[ong_nom]:
+                            worksheet.write(posExcel, 35,ong[ong_nom]["anyo"])
+                            try:
+                                worksheet.write(posExcel, 36,ong[ong_nom]["internacional"])
+                            except:
+                                worksheet.write(posExcel, 36,0)
+                        else:
+                            worksheet.write(posExcel, 35,0)
                             worksheet.write(posExcel, 36,0)
-                        worksheet.write(posExcel, 37,1)
-                        worksheet.write(posExcel, 38,ong[ong_nom][year]["PROYECTOS"][pais])
+                        if pais in oldColonies:
+                            worksheet.write(posExcel, 37,1)
+                        else:
+                            worksheet.write(posExcel, 37,0)
+                        if year in delegacionesONG[ong_nom]:
+                            print("DINTRE1")
+                            if pais in delegacionesONG[ong_nom][year]:
+                                print("DINTRE2")
+                                worksheet.write(posExcel, 38,1)
+                            else:
+                                worksheet.write(posExcel, 38,0)
+                        else: 
+                            worksheet.write(posExcel, 38,0)
+                        worksheet.write(posExcel, 39,1)
+                        worksheet.write(posExcel, 40,ong[ong_nom][year]["PROYECTOS"][pais])
                         
                         posExcel+=1
                     else:
@@ -1467,10 +1545,37 @@ for ong_nom in ongsFer:
     workbook.close()       
                 
 pickle.dump(ong, open( "./ong.p", "wb" ) )
+pickle.dump(delegacionesONG, open( "./delegaciones.p", "wb" ) )
                 
 
 
+diputados = pd.read_excel('./data_congreso_diputados.xlsx', sheet_name='taulamare')
+diputados["proporcion fondos privados"] = ""
+diputados["total fondos"] = ""
+diputados["año constitución"] = ""
+for i in range(len(diputados)):  
+    info = mision.iloc[i]
+    info.index
+    if info["Congede"]==1:
+        nomONG = revisionNombres(unicodedata.normalize('NFD', info["Organization NAME"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )    
+        nomONG = revisionNombres(nomONG)
+        year = info["Year"]
+        if nomONG in ong and year in ong[nomONG]:
+             
+             diputados.iloc[i, diputados.columns.get_loc('año constitución')] = ong[nomONG]["anyo"]
+       
+            
+             if "INGRESOS" in ong[nomONG][year]:
+            
+                fondosPrivados = float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos privados"])/(float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos públicos"])+float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos privados"]))
+                #info["proporcion fondos privados"] = fondosPrivados                     
+                diputados.iloc[i, diputados.columns.get_loc('proporcion fondos privados')] = fondosPrivados
+                diputados.iloc[i, diputados.columns.get_loc('total fondos')] = float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos públicos"])+float(ong[ong_nom][year]["INGRESOS"]["TOTAL fondos privados"])
+       
+            #diputados.iloc[i, diputados.columns.get_loc('proporcion fondos privados')] = fondosPrivados
+            
 
+diputados.to_excel('./data_congreso_diputados_modified.xlsx', sheet_name='taulamare')
 
 
 

@@ -16,9 +16,8 @@ trainingGlobal_negatiu = pandas.read_excel("../output/allExcels_negatiu.xlsx", s
 #trainingGlobal =trainingGlobal.replace("..",0)
 trainingGlobal_negatiu =trainingGlobal_negatiu.replace("..",0)
 
-#provaRF = copy.deepcopy(trainingGlobal)
-#del provaRF['Visitado']
-#del provaRF['Dinero_en_el_proyecto']
+
+
 
 provaRF_negatiu = copy.deepcopy(trainingGlobal_negatiu)
 del provaRF_negatiu['Visitado']

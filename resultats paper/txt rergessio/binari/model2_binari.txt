@@ -1,0 +1,36 @@
+Call:
+glm(formula = Visitado ~ Public_Grant + Total_Fondos + Proporcion_Fondos_Privados + 
+    Proporcion_Fondos_MAE + NGO_Country_Budget_Previous_Year + 
+    Total_subvencion_en_el_Pais_y_Anyo + Vision_ONGD_Universal + 
+    Colony + Delegacion, family = "binomial", data = allInfoLog)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.5177  -0.2799  -0.1976  -0.1476   3.2131  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                        -4.177e+00  1.000e-01 -41.761  < 2e-16 ***
+Public_Grant                       -3.360e-02  5.337e-03  -6.296 3.06e-10 ***
+Total_Fondos                        1.747e-08  1.123e-09  15.559  < 2e-16 ***
+Proporcion_Fondos_Privados          1.619e+00  1.053e-01  15.380  < 2e-16 ***
+Proporcion_Fondos_MAE               6.831e-01  1.347e-01   5.073 3.92e-07 ***
+NGO_Country_Budget_Previous_Year    2.612e-01  3.427e-03  76.205  < 2e-16 ***
+Total_subvencion_en_el_Pais_y_Anyo -2.241e-02  2.650e-03  -8.455  < 2e-16 ***
+Vision_ONGD_Universal              -2.640e-01  6.471e-02  -4.080 4.50e-05 ***
+Colony                              7.648e-01  5.573e-02  13.723  < 2e-16 ***
+Delegacion                          2.965e+00  9.379e-02  31.614  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 30239  on 37225  degrees of freedom
+Residual deviance: 12599  on 37216  degrees of freedom
+AIC: 12619
+
+Number of Fisher Scoring iterations: 6
+
+> nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+> 1-logLik(modelbin2)/logLik(nullmod)
+'log Lik.' 0.5833487 (df=10)

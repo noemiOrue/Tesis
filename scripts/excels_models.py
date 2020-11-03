@@ -8,8 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 #leemos excels
 
-listColumns = ["ONU","Gross_National_Income","Public_Grant","Total_Fondos","Proporcion_Fondos_Privados","NGO_Country_Budget_Previous_Year","Total_subvencion_en_el_Pais_y_Anyo"]
-listColumns = listColumns + ["Vision_ONGD_LatinAmerica",'Vision_ONGD_Africa','Vision_ONGD_Universal',"Anyo_ONG","Internacional",'Colony','Visitado','Dinero_en_el_proyecto'] 
+listColumns = ["ONU","Gross_National_Income","Public_Grant","Total_Fondos","Proporcion_Fondos_Privados","Proporcion_Fondos_MAE","NGO_Country_Budget_Previous_Year","Total_subvencion_en_el_Pais_y_Anyo"]
+listColumns = listColumns + ["Vision_ONGD_LatinAmerica",'Vision_ONGD_Africa','Vision_ONGD_Universal',"Internacional",'Colony','Delegacion','Visitado','Dinero_en_el_proyecto'] 
 
 
 training = {}
@@ -24,6 +24,12 @@ for root, dirs, files in os.walk(path):
             training[filename[:-5]]=proyectos.replace("..",0)
 
 ongRaw = pickle.load( open( "./ong.p", "rb" ) )
+delegacionesONG = pickle.load( open( "./delegaciones.p", "rb" ) )
+
+oldColonies = ["mexico","guatemala","el salvador","honduras","nicaragua","costa rica","panama"]
+oldColonies = oldColonies + ["colombia","venezuela","ecuador","peru","bolivia","chile","argentina"]
+oldColonies = oldColonies + ["paraguay","uruguay","cuba","puerto rico"]
+oldColonies = oldColonies + ["filipinas","guam", "marruecos","sahara occidental","guinea ecuatorial"] 
 
 
 PaisosVisitats = {}
@@ -62,9 +68,18 @@ for ong in training:
                     newEntry["ONU"] = newValue["ONU"]
                     newEntry["Gross_National_Income"] = newValue["Gross_National_Income"]
                     newEntry["NGO_Country_Budget_Previous_Year"] = 0
-                    
-                    year = int(newValue.index[0][0:4])-1
+                               
                     country = newValue.index[0][5:]
+                    year = int(newValue.index[0][0:4])
+                    newEntry["Colony"] = 0
+                    newEntry["Delegacion"] = 0
+                    if country in oldColonies: newEntry["Colony"] = 1
+                    if year in delegacionesONG[ong]:
+                        if country in delegacionesONG[ong][year]:
+                            newEntry["Delegacion"] = 1
+
+                    year = year -1
+                    
                     if year in ongRaw[ong]:
                         if "PROYECTOS" in ongRaw[ong][year]:
                             if country in ongRaw[ong][year]["PROYECTOS"]:
@@ -95,8 +110,6 @@ for ong in PaisosVisitats:
 #PaisosVisitatsRatioONG = {}
 #for ong in paisosVisitatsONG:
 #    PaisosVisitatsRatioONG[ong] = paisosVisitatsONG[ong].count(1)/len(paisosVisitatsONG[ong]) 
-
-
 
 
 trainingGlobal = pandas.DataFrame()
