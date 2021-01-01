@@ -8,9 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 #leemos excels
 
-listColumns = ["ONU","Gross_National_Income","Public_Grant","Total_Fondos","Proporcion_Fondos_Privados","Proporcion_Fondos_MAE","NGO_Country_Budget_Previous_Year","Total_subvencion_en_el_Pais_y_Anyo"]
-listColumns = listColumns + ["Vision_ONGD_LatinAmerica",'Vision_ONGD_Africa','Vision_ONGD_Universal',"Internacional",'Colony','Delegacion','Visitado','Dinero_en_el_proyecto'] 
-
+listColumns = ["ONU","GDP","Public_Grant","Total_Funds","%_Private_Funds","%_MAE_Funds","Budget_Previous_Year","Donor_Aid_Budget"]
+listColumns = listColumns + ["LatinAmerica",'Africa','Universal','Colony','Delegation','Visitado','Dinero_en_el_proyecto'] 
 
 training = {}
 
@@ -66,30 +65,30 @@ for ong in training:
                     newEntry = copy.deepcopy(training[ong].loc[[examples[newValue.index[0][0:4]]]]) #copiem les dades amb la referencia de l'any
                     newEntry = newEntry.set_index(newValue.index) #posem l'index
                     newEntry["ONU"] = newValue["ONU"]
-                    newEntry["Gross_National_Income"] = newValue["Gross_National_Income"]
-                    newEntry["NGO_Country_Budget_Previous_Year"] = 0
+                    newEntry["GDP"] = newValue["GDP"]
+                    newEntry["Budget_Previous_Year"] = 0
                                
                     country = newValue.index[0][5:]
                     year = int(newValue.index[0][0:4])
                     newEntry["Colony"] = 0
-                    newEntry["Delegacion"] = 0
+                    newEntry["Delegation"] = 0
                     if country in oldColonies: newEntry["Colony"] = 1
                     if year in delegacionesONG[ong]:
                         if country in delegacionesONG[ong][year]:
-                            newEntry["Delegacion"] = 1
+                            newEntry["Delegation"] = 1
 
                     year = year -1
                     
                     if year in ongRaw[ong]:
                         if "PROYECTOS" in ongRaw[ong][year]:
                             if country in ongRaw[ong][year]["PROYECTOS"]:
-                                newEntry["NGO_Country_Budget_Previous_Year"] = ongRaw[ong][year]["PROYECTOS"][country]
+                                newEntry["Budget_Previous_Year"] = ongRaw[ong][year]["PROYECTOS"][country]
                             else:
-                                newEntry["NGO_Country_Budget_Previous_Year"] = 0
+                                newEntry["Budget_Previous_Year"] = 0
                         else:
-                            newEntry["NGO_Country_Budget_Previous_Year"] = 0
+                            newEntry["Budget_Previous_Year"] = 0
                     else:
-                        newEntry["NGO_Country_Budget_Previous_Year"] = 0
+                        newEntry["Budget_Previous_Year"] = 0
                     newEntry["Visitado"] = 0
                     newEntry["Dinero_en_el_proyecto"] = 0
                     training[ong] = training[ong].append(newEntry)

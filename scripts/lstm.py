@@ -31,29 +31,33 @@ from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras import optimizers
 import shap
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+
+
 
 from sklearn import preprocessing
 import _pickle as pickle
 import tensorflow.keras
 import copy
 
+tensorflow.test.is_gpu_available()
+np.random.seed(7)
+from tensorflow import set_random_seed
 #dataO = pd.read_excel("../output/allExcels_negatiu.xlsx",index_col = 0, header=0)
 
 data = pd.read_excel("../output/allExcels_negatiu.xlsx",index_col = 0, header=0)
+data = data.drop('Dinero_en_el_proyecto', 1)
 
-data['Gross_National_Income'] = np.log(data['Gross_National_Income'])
+data['GDP'] = np.log(data['GDP'])
 data['Public_Grant'] = np.log(data['Public_Grant'])
-data['Total_Fondos'] = np.log(data['Total_Fondos'])
-data['NGO_Country_Budget_Previous_Year'] = np.log(data['NGO_Country_Budget_Previous_Year']) #skew data
-data['Total_subvencion_en_el_Pais_y_Anyo'] = np.log(data['Total_subvencion_en_el_Pais_y_Anyo'])
-data['Dinero_en_el_proyecto'] = np.log(data['Dinero_en_el_proyecto']) #skew data
-
+data['Total_Funds'] = np.log(data['Total_Funds'])
+data['Budget_Previous_Year'] = np.log(data['Budget_Previous_Year']) #skew data
+data['Donor_Aid_Budget'] = np.log(data['Donor_Aid_Budget'])
 data[data < 0] = 0
 
 scaler = MinMaxScaler(feature_range=(0, 1))
 scaler = scaler.fit(data)
 
-np.random.seed(7)
 
 #data_scaled = pd.DataFrame(x_scaled, columns = data.columns,index=data.index)
 
@@ -61,23 +65,24 @@ training_LSTM = {}
 y_LSTM = {}
 yR_LSTM = {}
 
+
 path = '../output/'
 for root, dirs, files in os.walk(path):
     for filename in files:
         if "_negativos" in filename:
             name_ONG = filename[:filename.index("_")]
+            print(name_ONG)
             training_LSTM[name_ONG] = {}
             y_LSTM[name_ONG] = {}
-            yR_LSTM[name_ONG] = {}
-            print(name_ONG)
             proyectos = pd.read_excel(path+filename, sheet_name='Sheet1',index_col = "Pais-Año")
-            proyectos['NGO_Country_Budget_Previous_Year'] = np.log(proyectos['NGO_Country_Budget_Previous_Year'])
-            proyectos['Total_subvencion_en_el_Pais_y_Anyo'] = np.log(proyectos['Total_subvencion_en_el_Pais_y_Anyo'])
-            proyectos['Total_Fondos'] = np.log(proyectos['Total_Fondos'])
+            proyectos = proyectos.drop('Dinero_en_el_proyecto', 1)
 
-            proyectos['Gross_National_Income'] = np.log(proyectos['Gross_National_Income'])
+            proyectos['Budget_Previous_Year'] = np.log(proyectos['Budget_Previous_Year'])
+            proyectos['Donor_Aid_Budget'] = np.log(proyectos['Donor_Aid_Budget'])
+            proyectos['Total_Funds'] = np.log(proyectos['Total_Funds'])
+
+            proyectos['GDP'] = np.log(proyectos['GDP'])
             proyectos['Public_Grant'] = np.log(proyectos['Public_Grant'])
-            proyectos['Dinero_en_el_proyecto'] = np.log(proyectos['Dinero_en_el_proyecto'])
             proyectos[proyectos < 0] = 0
             
             for index, row in proyectos.iterrows():
@@ -86,73 +91,451 @@ for root, dirs, files in os.walk(path):
                 if country not in training_LSTM[name_ONG]:
                     training_LSTM[name_ONG][country] = {}
                     y_LSTM[name_ONG][country] = {}
-                    yR_LSTM[name_ONG][country] = {}
                 
                 row = scaler.transform([row])
-                y_LSTM[name_ONG][country][age]= row[0][-2]
-                yR_LSTM[name_ONG][country][age]= row[0][-1]
-                
-                training_LSTM[name_ONG][country][age]= row[0][:-2]
-                #training_LSTM[name_ONG][country][age]= row
-
-training_LSTM_2 = []
-y_LSTM_2 = []
-yR_LSTM_2 = []
-training_LSTM_4 = []
-training_LSTM_8 = []
-y_LSTM_8 = []
-yR_LSTM_8 = []
+                y_LSTM[name_ONG][country][age]= row[0][-1]
             
+                training_LSTM[name_ONG][country][age]= row[0][:-1]
+
+training_LSTM_8 = []
+y_LSTM_8 = []           
 
 for ong in training_LSTM:
     for country in training_LSTM[ong]:
         ages = ["2009","2010","2011","2012","2013","2014","2015","2016"]
-        for posAge in range(len(ages)-1):
-            newdata = []
-            if ages[posAge] in training_LSTM[ong][country]:
-                data = training_LSTM[ong][country][ages[posAge]]
-                newdata.append(data)
-            else:
-                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-            yR = 0
-            y = 0
-            if ages[posAge+1] in training_LSTM[ong][country]:
-                data = training_LSTM[ong][country][ages[posAge+1]]
-                newdata.append(data)
-                yR = yR_LSTM[ong][country][ages[posAge+1]]
-                y = y_LSTM[ong][country][ages[posAge+1]]
-            else:
-                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-            training_LSTM_2.append(newdata)
-            y_LSTM_2.append(y)
-            yR_LSTM_2.append(yR)
-        
+               
         newdata = []
         for posAge in range(len(ages)):
             if ages[posAge] in training_LSTM[ong][country]:
                 data = training_LSTM[ong][country][ages[posAge]]
                 newdata.append(data)
             else:
-                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-            
+                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0])
             if ages[posAge]=="2016":
                 yR = 0
                 y = 0
                 if ages[posAge] in training_LSTM[ong][country]:
-                    yR = yR_LSTM[ong][country][ages[posAge]]
                     y = y_LSTM[ong][country][ages[posAge]]
                 training_LSTM_8.append(newdata)
                 y_LSTM_8.append(y)
-                yR_LSTM_8.append(yR)
 
-training_LSTM_8_pad = sequence.pad_sequences(training_LSTM_8,dtype='float32')              
+training_LSTM_8_pad = sequence.pad_sequences(training_LSTM_8,dtype='float64')              
 
 
-training_LSTM_2_pad = sequence.pad_sequences(training_LSTM_2,dtype='float32')              
-
-######################################regressio 8
 import time
 inici = time.time()
+
+model_bin = Sequential()
+
+model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
+                           recurrent_dropout=0.2,return_sequences=True))
+model_bin.add(BatchNormalization())
+model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
+model_bin.add(BatchNormalization())
+model_bin.add(Dense(1, activation="sigmoid"))
+nadam_opt = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999)
+
+model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
+#model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=50)
+early_stopping = EarlyStopping(patience=0,mode="min",monitor='val_loss')
+model_bin.fit(training_LSTM_8_pad, y_LSTM_8, validation_split=0.1,callbacks=[early_stopping],epochs=1000)
+final = time.time()
+
+
+
+
+
+model_bin = Sequential()
+
+model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
+                           recurrent_dropout=0.2,return_sequences=True))
+model_bin.add(BatchNormalization())
+model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
+model_bin.add(BatchNormalization())
+model_bin.add(Dense(1, activation="sigmoid"))
+nadam_opt = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999)
+
+model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
+model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=5)
+#early_stopping = EarlyStopping(patience=0,mode="min",monitor='val_loss')
+final = time.time()
+
+
+model_bin.save("./binaryKeras.model")
+
+explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
+
+training_LSTM_8_pad_B = explainer_bin.shap_values(training_LSTM_8_pad)
+
+pickle.dump(training_LSTM_8_pad_B,open("./fitxerShapleyLSTM_8_B","wb")) 
+
+training_LSTM_8_pad_B = pickle.load(open("./fitxerShapleyLSTM_8_B","rb"))
+
+absSHAP_B = []
+absSHAP_P = []
+SHAP_P = []
+absSHAP_B_num = []
+absSHAP_P_num = []
+SHAP_P_num = []
+dicSV_P = []
+
+
+for i in range(len(training_LSTM_8_pad_B[0][0])):
+    data = []
+    data0 = []
+    for j in range(len(training_LSTM_8_pad_B[0][0][0])):
+        data.append([])
+        data0.append(0)
+    absSHAP_B.append(copy.deepcopy(data))
+    absSHAP_B_num.append(copy.deepcopy(data0))
+
+    absSHAP_P.append(copy.deepcopy(data))
+    absSHAP_P_num.append(copy.deepcopy(data0))
+    
+    SHAP_P.append(copy.deepcopy(data))
+    SHAP_P_num.append(copy.deepcopy(data0))
+    
+    dicSV_P.append(copy.deepcopy(data0))
+        
+        
+
+for entry in training_LSTM_8_pad_B[0]:
+    for i in range(len(entry)):
+        for j in range(len(entry[0])):
+            absSHAP_B[i][j].append(abs(entry[i][j]))
+    
+         
+posEntry = 0
+for entry in training_LSTM_8_pad_B[0]:
+    if y_LSTM_8[posEntry]==1:
+        pos = np.argwhere(entry == np.amax(entry))
+        dicSV_P[pos[0][0]][pos[0][1]]+=1
+        for i in range(len(entry)):
+            for j in range(len(entry[0])):
+                absSHAP_P[i][j].append(abs(entry[i][j]))
+                SHAP_P[i][j].append(entry[i][j])
+    posEntry+=1
+
+for i in range(len(entry)):
+    for j in range(len(entry[0])):
+        absSHAP_B_num[i][j] = sum(absSHAP_B[i][j])/len(absSHAP_B[i][j])  
+
+for i in range(len(absSHAP_B)):
+    for j in range(len(absSHAP_B[0])):
+        absSHAP_P_num[i][j] = sum(absSHAP_P[i][j])/len(absSHAP_P[i][j]) 
+        SHAP_P_num[i][j] = sum(SHAP_P[i][j])/len(SHAP_P[i][j]) 
+
+        
+for i in range(len(list(proyectos.columns))):
+    print(i,proyectos.columns[i])
+
+
+shap_Specific= []
+shap_SpecificValues = []
+shap_Specific_P= []
+shap_SpecificValues_P = []
+len(training_LSTM_8_pad_B[0][0])
+variables = []
+for i in range(len(training_LSTM_8_pad_B[0])):
+    valSV = []
+    valFeature = []
+    for j in range(len(training_LSTM_8_pad_B[0][0])):
+        for k in range(len(training_LSTM_8_pad_B[0][0][0])): 
+            valSV.append(training_LSTM_8_pad_B[0][i][j][k])
+            valFeature.append(training_LSTM_8_pad[i][j][k])
+            if i ==0:
+                variable = proyectos.columns[k]
+                variable = variable+"_"+["2009","2010","2011","2012","2013","2014","2015","2016"][j]
+                variables.append(variable)
+    shap_Specific.append(copy.deepcopy(valSV))
+    shap_SpecificValues.append(copy.deepcopy(valFeature))
+    if y_LSTM_8[i]==1:
+        shap_Specific_P.append(copy.deepcopy(valSV))
+        shap_SpecificValues_P.append(copy.deepcopy(valFeature))
+
+shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,max_display=50)
+
+shap.summary_plot(np.array(shap_Specific_P),features=np.array(shap_SpecificValues_P),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_P),features=np.array(shap_SpecificValues_P),feature_names=variables,max_display=10)
+
+       
+model_bin = tensorflow.keras.models.load_model("./binaryKeras.model")
+for ong in training_LSTM:
+    print(ong)
+bigNames = ["acción contra el hambre","cáritas","cruz roja","medicos del mundo","oxfam intermon","fontilles","educo","adsis","entreculturas","manos unidas"]
+
+training_LSTM_8_Big = []
+y_LSTM_8_Big = []           
+
+for ong in training_LSTM:
+    if ong in bigNames:
+        print(ong)
+        for country in training_LSTM[ong]:
+            ages = ["2009","2010","2011","2012","2013","2014","2015","2016"]
+                   
+            newdata = []
+            for posAge in range(len(ages)):
+                if ages[posAge] in training_LSTM[ong][country]:
+                    data = training_LSTM[ong][country][ages[posAge]]
+                    newdata.append(data)
+                else:
+                    newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0])
+                if ages[posAge]=="2016":
+                    yR = 0
+                    y = 0
+                    if ages[posAge] in training_LSTM[ong][country]:
+                        y = y_LSTM[ong][country][ages[posAge]]
+                    training_LSTM_8_Big.append(newdata)
+                    y_LSTM_8_Big.append(y)
+
+training_LSTM_8_pad_Big = sequence.pad_sequences(training_LSTM_8_Big,dtype='float64')              
+explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
+training_LSTM_8_pad_B_Big = explainer_bin.shap_values(training_LSTM_8_pad_Big)
+
+
+shap_Specific_Big= []
+shap_SpecificValues_Big = []
+shap_Specific_P_Big= []
+shap_SpecificValues_P_Big = []
+variables = []
+for i in range(len(training_LSTM_8_pad_B_Big[0])):
+    valSV = []
+    valFeature = []
+    for j in range(len(training_LSTM_8_pad_B_Big[0][0])):
+        for k in range(len(training_LSTM_8_pad_B_Big[0][0][0])): 
+            valSV.append(training_LSTM_8_pad_B_Big[0][i][j][k])
+            valFeature.append(training_LSTM_8_pad_Big[i][j][k])
+            if i ==0:
+                variable = proyectos.columns[k]
+                variable = variable+"_"+["2009","2010","2011","2012","2013","2014","2015","2016"][j]
+                variables.append(variable)
+    shap_Specific_Big.append(copy.deepcopy(valSV))
+    shap_SpecificValues_Big.append(copy.deepcopy(valFeature))
+    if y_LSTM_8_Big[i]==1:
+        shap_Specific_P_Big.append(copy.deepcopy(valSV))
+        shap_SpecificValues_P_Big.append(copy.deepcopy(valFeature))
+
+
+shap.summary_plot(np.array(shap_Specific_Big),features=np.array(shap_SpecificValues_Big),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_Big),features=np.array(shap_SpecificValues_Big),feature_names=variables,max_display=10)
+
+
+smallNames = ["amref","acción verapaz","edificando comunidad de nazaret","farmaceuticos sin fronteras","fisc-compañia de maria","pueblos hermanos"]
+
+training_LSTM_8_Small = []
+y_LSTM_8_Small = []           
+
+for ong in training_LSTM:
+    if ong in smallNames:
+        print(ong)
+        for country in training_LSTM[ong]:
+            ages = ["2009","2010","2011","2012","2013","2014","2015","2016"]
+                   
+            newdata = []
+            for posAge in range(len(ages)):
+                if ages[posAge] in training_LSTM[ong][country]:
+                    data = training_LSTM[ong][country][ages[posAge]]
+                    newdata.append(data)
+                else:
+                    newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0])
+                if ages[posAge]=="2016":
+                    yR = 0
+                    y = 0
+                    if ages[posAge] in training_LSTM[ong][country]:
+                        y = y_LSTM[ong][country][ages[posAge]]
+                    training_LSTM_8_Small.append(newdata)
+                    y_LSTM_8_Small.append(y)
+
+training_LSTM_8_pad_Small = sequence.pad_sequences(training_LSTM_8_Small,dtype='float64')              
+explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
+training_LSTM_8_pad_B_Small = explainer_bin.shap_values(training_LSTM_8_pad_Small)
+
+
+shap_Specific_Small= []
+shap_SpecificValues_Small = []
+shap_Specific_P_Small= []
+shap_SpecificValues_P_Small = []
+variables = []
+for i in range(len(training_LSTM_8_pad_B_Small[0])):
+    valSV = []
+    valFeature = []
+    for j in range(len(training_LSTM_8_pad_B_Small[0][0])):
+        for k in range(len(training_LSTM_8_pad_B_Small[0][0][0])): 
+            valSV.append(training_LSTM_8_pad_B_Small[0][i][j][k])
+            valFeature.append(training_LSTM_8_pad_Small[i][j][k])
+            if i ==0:
+                variable = proyectos.columns[k]
+                variable = variable+"_"+["2009","2010","2011","2012","2013","2014","2015","2016"][j]
+                variables.append(variable)
+    shap_Specific_Small.append(copy.deepcopy(valSV))
+    shap_SpecificValues_Small.append(copy.deepcopy(valFeature))
+    if y_LSTM_8_Small[i]==1:
+        shap_Specific_P_Small.append(copy.deepcopy(valSV))
+        shap_SpecificValues_P_Small.append(copy.deepcopy(valFeature))
+
+
+shap.summary_plot(np.array(shap_Specific_Small),features=np.array(shap_SpecificValues_Small),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_Small),features=np.array(shap_SpecificValues_Small),feature_names=variables,max_display=10)
+
+
+
+training_LSTM_8_Medium = []
+y_LSTM_8_Medium = []           
+
+for ong in training_LSTM:
+    if ong not in smallNames and ong not in bigNames:
+        print(ong)
+        for country in training_LSTM[ong]:
+            ages = ["2009","2010","2011","2012","2013","2014","2015","2016"]
+                   
+            newdata = []
+            for posAge in range(len(ages)):
+                if ages[posAge] in training_LSTM[ong][country]:
+                    data = training_LSTM[ong][country][ages[posAge]]
+                    newdata.append(data)
+                else:
+                    newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0])
+                if ages[posAge]=="2016":
+                    yR = 0
+                    y = 0
+                    if ages[posAge] in training_LSTM[ong][country]:
+                        y = y_LSTM[ong][country][ages[posAge]]
+                    training_LSTM_8_Medium.append(newdata)
+                    y_LSTM_8_Medium.append(y)
+
+training_LSTM_8_pad_Medium = sequence.pad_sequences(training_LSTM_8_Medium,dtype='float64')              
+explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
+training_LSTM_8_pad_B_Medium = explainer_bin.shap_values(training_LSTM_8_pad_Medium)
+
+
+shap_Specific_Medium= []
+shap_SpecificValues_Medium = []
+shap_Specific_P_Medium= []
+shap_SpecificValues_P_Medium = []
+variables = []
+for i in range(len(training_LSTM_8_pad_B_Medium[0])):
+    valSV = []
+    valFeature = []
+    for j in range(len(training_LSTM_8_pad_B_Medium[0][0])):
+        for k in range(len(training_LSTM_8_pad_B_Medium[0][0][0])): 
+            valSV.append(training_LSTM_8_pad_B_Medium[0][i][j][k])
+            valFeature.append(training_LSTM_8_pad_Medium[i][j][k])
+            if i ==0:
+                variable = proyectos.columns[k]
+                variable = variable+"_"+["2009","2010","2011","2012","2013","2014","2015","2016"][j]
+                variables.append(variable)
+    shap_Specific_Medium.append(copy.deepcopy(valSV))
+    shap_SpecificValues_Medium.append(copy.deepcopy(valFeature))
+    if y_LSTM_8_Medium[i]==1:
+        shap_Specific_P_Medium.append(copy.deepcopy(valSV))
+        shap_SpecificValues_P_Medium.append(copy.deepcopy(valFeature))
+
+
+shap.summary_plot(np.array(shap_Specific_Medium),features=np.array(shap_SpecificValues_Medium),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_Medium),features=np.array(shap_SpecificValues_Medium),feature_names=variables,max_display=10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+shap_Specific.append([training_LSTM_8_pad_B[0][i][7][6],training_LSTM_8_pad_B[0][i][7][12],training_LSTM_8_pad_B[0][i][5][6],training_LSTM_8_pad_B[0][i][3][6],training_LSTM_8_pad_B[0][i][6][6],training_LSTM_8_pad_B[0][i][7][12]])
+shap_SpecificValues.append([training_LSTM_8_pad[i][7][6],training_LSTM_8_pad[i][7][12],training_LSTM_8_pad[i][5][6],training_LSTM_8_pad[i][3][6],training_LSTM_8_pad[i][6][6],training_LSTM_8_pad[i][7][12]])
+if y_LSTM_8[i]==1:
+    shap_Specific.append([training_LSTM_8_pad_B[0][i][7][6],training_LSTM_8_pad_B[0][i][7][12],training_LSTM_8_pad_B[0][i][5][6],training_LSTM_8_pad_B[0][i][3][6],training_LSTM_8_pad_B[0][i][6][6],training_LSTM_8_pad_B[0][i][7][12]])
+    shap_SpecificValues.append([training_LSTM_8_pad[i][7][6],training_LSTM_8_pad[i][7][12],training_LSTM_8_pad[i][5][6],training_LSTM_8_pad[i][3][6],training_LSTM_8_pad[i][6][6],training_LSTM_8_pad[i][7][12]])
+    
+
+
+
+
+
+
+absSHAP_B_num[7][7]
+absSHAP_B_num[0][7]
+absSHAP_B_num[7][0]
+absSHAP_B_num[7][12]
+
+
+d = training_LSTM_8_pad_B[0][0]
+
+
+
+ 
+
+test_0 = training_LSTM_8_pad_B[0][0]
+test_4 = training_LSTM_8_pad_B[0][4]
+
+len(test_0)
+num = 0
+for el in test_4:
+    for el2 in el:
+        num+=el2
+
+predictions = model_bin.predict(training_LSTM_8_pad)
+predictions[4]
+num+np.mean(y_LSTM_8)
+
+
+
+
+training_LSTM_8_pad_B = pickle.load(open("./fitxerShapleyLSTM_8_B","rb"))
+training_LSTM_8_pad_R = pickle.load(open("./fitxerShapleyLSTM_8_R","rb"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################regressio 8
+
+
+
+
+
 model = Sequential()
 
 model.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
@@ -186,31 +569,6 @@ training_LSTM_8_pad_R = explainer.shap_values(training_LSTM_8_pad)
 pickle.dump(training_LSTM_8_pad_R,open("./fitxerShapleyLSTM_8_R","wb"))  
 
 
-
-model_bin = Sequential()
-
-model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
-                           recurrent_dropout=0.2,return_sequences=True))
-model_bin.add(BatchNormalization())
-model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
-model_bin.add(BatchNormalization())
-model_bin.add(Dense(1, activation="sigmoid"))
-nadam_opt = optimizers.Nadam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
-
-model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
-model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=50)
-final = time.time()
-
-model_bin.save("./binaryKeras.model")
-
-explainer_bin = shap.DeepExplainer(model_bin,training_LSTM_8_pad)
-
-training_LSTM_8_pad_B = explainer_bin.shap_values(training_LSTM_8_pad)
-
-pickle.dump(training_LSTM_8_pad_B,open("./fitxerShapleyLSTM_8_B","wb"))  
-
-training_LSTM_8_pad_B = pickle.load(open("./fitxerShapleyLSTM_8_B","rb"))
-training_LSTM_8_pad_R = pickle.load(open("./fitxerShapleyLSTM_8_R","rb"))
 
 
 data = [[2,4],[3,5]]

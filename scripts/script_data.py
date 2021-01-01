@@ -27,7 +27,6 @@ paises.append("myanmar")
 paises.append("serbia y montenegro")
 
 
-
 def revisionNombres(inputName):
     if inputName in ["accion-contra-el-hambre","accio contra el hambre","accion contra el hambre","fundacion accion contra el hambre"]:
         return "acción contra el hambre"
@@ -219,7 +218,11 @@ oldColonies = ["mexico","guatemala","el salvador","honduras","nicaragua","costa 
 oldColonies = oldColonies + ["colombia","venezuela","ecuador","peru","bolivia","chile","argentina"]
 oldColonies = oldColonies + ["paraguay","uruguay","cuba","puerto rico"]
 oldColonies = oldColonies + ["filipinas","guam", "marruecos","sahara occidental","guinea ecuatorial"] 
+oldColonies = oldColonies + ["republica dominicana","bahamas","antigua y barbuda", "trinidad y tobago"] 
+oldColonies = oldColonies + ["jamaica","barbados","santa lucia","guyana","haiti"]
+oldColonies = oldColonies + ["bermudas"]
 
+print(oldColonies.sort())
 
 delegacionesONG = {}
 path = 'C:/Users/bcoma/Documents/GitHub/Tesis_UB/dades/delegaciones'
@@ -1218,7 +1221,7 @@ for i in range(len(onu)):
         paises_ONU[pais_onu]["ONU"][year]= info[year]
 
 ###ingressos anuals països
-file = pd.read_excel('../dades/Data_Extract_From_Indicadores_del_desarrollo_mundial/Data_Extract_From_Indicadores_del_desarrollo_mundial.xlsx', sheet_name='Data')
+file = pd.read_excel('../dades/Data_Extract_From_Indicadores_del_desarrollo_mundial/GDP per capal constant 2010 USD.xls', sheet_name='Data')
 years = [2009,2010,2011,2012,2013,2014,2015,2016]
 for i in range(len(file)):    
     info = file.iloc[i]
@@ -1230,8 +1233,7 @@ for i in range(len(file)):
             paises_ONU[pais_onu] = {}
         paises_ONU[pais_onu]["money"] = {}
         for j in range(len(years)):
-            strYear = str(years[j])+" [YR"+str(years[j])+"]"
-            paises_ONU[pais_onu]["money"][years[j]]= info[strYear]
+            paises_ONU[pais_onu]["money"][years[j]]= info[str(years[j])]
 
 paises_ONU["serbia y montenegro"] = {}
 paises_ONU["serbia y montenegro"]["money"]= {}
@@ -1282,11 +1284,6 @@ for i in range(len(universal)):
     except:
         pass
     
-
-
-
-
-
 import xlsxwriter
 
 ongsFer = ["acción contra el hambre","cruz roja","cáritas","oxfam intermon","ayuda en acción","acción verapaz","medicus mundi","manos unidas"]
@@ -1304,13 +1301,13 @@ for ong_nom in ongsFer:
     bold = workbook.add_format({'bold': True})
     worksheet.write('A1', 'Pais-Año',bold)
     worksheet.write('B1', 'ONU',bold)
-    worksheet.write('C1', 'Gross_National_Income',bold)
+    worksheet.write('C1', 'GDP',bold)
     worksheet.write('D1', 'Public_Grant',bold)
-    worksheet.write('E1', 'NGO_Country_Budget_Previous_Year',bold)
-    worksheet.write('F1', 'Vision_ONGD_LatinAmerica',bold)
-    worksheet.write('G1', 'Vision_ONGD_Africa',bold)
-    worksheet.write('H1', 'Vision_ONGD_Confessional',bold)
-    worksheet.write('I1', 'Vision_ONGD_Universal',bold)
+    worksheet.write('E1', 'Budget_Previous_Year',bold)
+    worksheet.write('F1', 'LatinAmerica',bold)
+    worksheet.write('G1', 'Africa',bold)
+    worksheet.write('H1', 'Confessional',bold)
+    worksheet.write('I1', 'Universal',bold)
     worksheet.write('J1', 'Public_Funds_MAE',bold)
     #fer mae i "no mare"
     worksheet.write('K1', 'Public_Funds_Decentralized',bold)
@@ -1334,14 +1331,14 @@ for ong_nom in ongsFer:
     worksheet.write('AC1', 'Forma_Juridica_Otra',bold)
     worksheet.write('AD1', 'Voluntarios_Espanya',bold)
     worksheet.write('AE1', 'Voluntarios_Extranjero',bold)
-    worksheet.write('AF1', 'Total_subvencion_en_el_Pais_y_Anyo',bold)
-    worksheet.write('AG1', 'Total_Fondos',bold)
-    worksheet.write('AH1', 'Proporcion_Fondos_Privados',bold)
-    worksheet.write('AI1', 'Proporcion_Fondos_MAE',bold)
+    worksheet.write('AF1', 'Donor_Aid_Budget',bold)
+    worksheet.write('AG1', 'Total_Funds',bold)
+    worksheet.write('AH1', '%_Private_Funds',bold)
+    worksheet.write('AI1', '%_MAE_Funds',bold)
     worksheet.write('AJ1', 'Anyo_ONG',bold)
     worksheet.write('AK1', 'Internacional',bold)
     worksheet.write("AL1", "Colony", bold)
-    worksheet.write("AM1", "Delegacion", bold)
+    worksheet.write("AM1", "Delegation", bold)
     worksheet.write('AN1', 'Visitado',bold)
     worksheet.write('AO1', 'Dinero_en_el_proyecto',bold)
     
@@ -1365,7 +1362,7 @@ for ong_nom in ongsFer:
                             worksheet.write(posExcel, 1, 0)
                         if pais in paises_ONU:
                             if "money" in paises_ONU[pais]:
-                                if year in paises_ONU[pais]["money"]:
+                                if year in paises_ONU[pais]["money"] and not (numpy.isnan(paises_ONU[pais]["money"][year])):
                                     worksheet.write(posExcel, 2, paises_ONU[pais]["money"][year])
                                 else:
                                     worksheet.write(posExcel, 2, 0)
@@ -1548,7 +1545,7 @@ pickle.dump(ong, open( "./ong.p", "wb" ) )
 pickle.dump(delegacionesONG, open( "./delegaciones.p", "wb" ) )
                 
 
-
+"""
 diputados = pd.read_excel('./data_congreso_diputados.xlsx', sheet_name='taulamare')
 diputados["proporcion fondos privados"] = ""
 diputados["total fondos"] = ""
@@ -1576,6 +1573,6 @@ for i in range(len(diputados)):
             
 
 diputados.to_excel('./data_congreso_diputados_modified.xlsx', sheet_name='taulamare')
-
+"""
 
 

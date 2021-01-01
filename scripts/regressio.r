@@ -11,6 +11,195 @@ library("glmmTMB")
 #summary(cor)
 
 allInfo <- read_excel('../output/allExcels_negatiu.xlsx')
+allInfoLog <- allInfo[,]
+
+allInfoLog['Dinero_en_el_proyecto'] <- log2(allInfoLog['Dinero_en_el_proyecto']) 
+allInfoLog['Budget_Previous_Year'] <- log2(allInfoLog['Budget_Previous_Year'])
+allInfoLog['Donor_Aid_Budget'] <- log2(allInfoLog['Donor_Aid_Budget'])
+allInfoLog['GDP'] <- log2(allInfoLog['GDP'])
+allInfoLog['Public_Grant'] <- log2(allInfoLog['Public_Grant'])
+
+allInfoLog[allInfoLog<0] <- 0
+
+modelbin1 <- glm(Visitado~ONU+GDP+Public_Grant+Total_Funds+`%_Private_Funds`+`%_MAE_Funds`+Budget_Previous_Year+Donor_Aid_Budget+LatinAmerica+Africa+Universal+Colony+Delegation,data=allInfoLog,family = "binomial")
+summary(modelbin1)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin1)/logLik(nullmod)
+
+#H1
+modelbin2 <- glm(Visitado~Public_Grant+Donor_Aid_Budget,data=allInfoLog,family = "binomial")
+summary(modelbin2)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin2)/logLik(nullmod)
+
+
+#H1.1
+modelbin3 <- glm(Visitado~Public_Grant+Donor_Aid_Budget+Total_Funds+`%_Private_Funds`+`%_MAE_Funds`,data=allInfoLog,family = "binomial")
+summary(modelbin3)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin3)/logLik(nullmod)
+
+
+#H2
+modelbin4 <- glm(Visitado~ONU+GDP+LatinAmerica+Africa+Universal+Colony,data=allInfoLog,family = "binomial")
+summary(modelbin4)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin4)/logLik(nullmod)
+
+
+modelbin5 <- glm(Visitado~Budget_Previous_Year+Delegation,data=allInfoLog,family = "binomial")
+summary(modelbin5)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin5)/logLik(nullmod)
+
+
+
+
+modelbin6 <- glm(Visitado~ONU+GDP+Public_Grant+Total_Funds+`%_Private_Funds`+`%_MAE_Funds`+Donor_Aid_Budget+LatinAmerica+Africa+Universal+Colony,data=allInfoLog,family = "binomial")
+summary(modelbin6)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin6)/logLik(nullmod)
+
+
+
+modelbin7 <- glm(Visitado~ONU+GDP+Public_Grant+Total_Funds+`%_Private_Funds`+`%_MAE_Funds`+Donor_Aid_Budget+LatinAmerica+Africa+Universal+Budget_Previous_Year+Colony,data=allInfoLog,family = "binomial")
+summary(modelbin7)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin7)/logLik(nullmod)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#no onu
+modelbin2 <- glm(Visitado~Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_LatinAmerica+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin2)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin2)/logLik(nullmod)
+
+#no latinamerica
+modelbin3 <- glm(Visitado~Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin3)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin3)/logLik(nullmod)
+
+
+#no national income
+modelbin4 <- glm(Visitado~Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin4)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin4)/logLik(nullmod)
+
+
+# no africa
+modelbin5 <- glm(Visitado~Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin5)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin5)/logLik(nullmod)
+
+#no internacional
+modelbin6 <- glm(Visitado~Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_Universal+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin6)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin6)/logLik(nullmod)
+
+
+#no universal
+modelbin7 <- glm(Visitado~Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin7)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin7)/logLik(nullmod)
+
+#no mae
+modelbin8 <- glm(Visitado~Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin8)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin8)/logLik(nullmod)
+
+
+#no public grant
+modelbin9 <- glm(Visitado~Total_Fondos+Proporcion_Fondos_Privados+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin9)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin9)/logLik(nullmod)
+
+#no subvencion pais y año
+modelbin10 <- glm(Visitado~Total_Fondos+Proporcion_Fondos_Privados+NGO_Country_Budget_Previous_Year+Colony+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin10)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin10)/logLik(nullmod)
+
+#no colony
+modelbin11 <- glm(Visitado~Total_Fondos+Proporcion_Fondos_Privados+NGO_Country_Budget_Previous_Year+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin11)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin11)/logLik(nullmod)
+
+
+#no total fondos
+modelbin13 <- glm(Visitado~Proporcion_Fondos_Privados+NGO_Country_Budget_Previous_Year+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin13)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin13)/logLik(nullmod)
+
+#no proporcion 
+modelbin14 <- glm(Visitado~NGO_Country_Budget_Previous_Year+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin14)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin13)/logLik(nullmod)
+
+modelbin15 <- glm(Visitado~NGO_Country_Budget_Previous_Year,data=allInfoLog,family = "binomial")
+summary(modelbin15)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin15)/logLik(nullmod)
+
+
+modelbin16 <- glm(Visitado~Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin16)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin16)/logLik(nullmod)
+
+
+
+
+
+
+
+
+
+modelbin6 <- glm(Visitado~NGO_Country_Budget_Previous_Year+Delegacion,data=allInfoLog,family = "binomial")
+summary(modelbin6)
+nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
+1-logLik(modelbin6)/logLik(nullmod)
+
+
+
+
+
+
+
 
 model1 <- lm(Dinero_en_el_proyecto~ONU+Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_LatinAmerica+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfo)
 summary(model1)
@@ -23,22 +212,10 @@ with(summary(model1log), 1 - deviance/null.deviance)
 model1logI <- glmmTMB(Dinero_en_el_proyecto~ONU+Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_LatinAmerica+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfo,family = Gamma(link=inverse))
 summary(model1logI)
 
-modelbin1 <- glm(Visitado~ONU+Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_LatinAmerica+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfo,family = "binomial")
-summary(modelbin1)
-nullmod <- glm(Visitado~1,data=allInfo, family="binomial")
-1-logLik(modelbin1)/logLik(nullmod)
 
 
 
-allInfoLog <- allInfo[,]
 
-allInfoLog['Dinero_en_el_proyecto'] <- log2(allInfoLog['Dinero_en_el_proyecto']) 
-allInfoLog['NGO_Country_Budget_Previous_Year'] <- log2(allInfoLog['NGO_Country_Budget_Previous_Year'])
-allInfoLog['Total_subvencion_en_el_Pais_y_Anyo'] <- log2(allInfoLog['Total_subvencion_en_el_Pais_y_Anyo'])
-allInfoLog['Gross_National_Income'] <- log2(allInfoLog['Gross_National_Income'])
-allInfoLog['Public_Grant'] <- log2(allInfoLog['Public_Grant'])
-
-allInfoLog[allInfoLog<0] <- 0
 
 
 model1 <- lm(Dinero_en_el_proyecto~ONU+Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_LatinAmerica+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfoLog)
@@ -49,10 +226,7 @@ model1log <- glm(Dinero_en_el_proyecto~ONU+Gross_National_Income+Public_Grant+To
 summary(model1log)
 with(summary(model1log), 1 - deviance/null.deviance)
 
-modelbin1 <- glm(Visitado~ONU+Gross_National_Income+Public_Grant+Total_Fondos+Proporcion_Fondos_Privados+Proporcion_Fondos_MAE+NGO_Country_Budget_Previous_Year+Total_subvencion_en_el_Pais_y_Anyo+Vision_ONGD_LatinAmerica+Vision_ONGD_Africa+Vision_ONGD_Universal+Internacional+Colony+Delegacion,data=allInfoLog,family = "binomial")
-summary(modelbin1)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin1)/logLik(nullmod)
+
 
 
 
@@ -229,10 +403,7 @@ nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
 1-logLik(modelbin5)/logLik(nullmod)
 
 
-modelbin6 <- glm(Visitado~NGO_Country_Budget_Previous_Year+Delegacion,data=allInfoLog,family = "binomial")
-summary(modelbin6)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin6)/logLik(nullmod)
+
 
 
 
