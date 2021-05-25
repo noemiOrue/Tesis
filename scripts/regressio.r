@@ -5,15 +5,17 @@ library(readxl)
 #install.packages("glmmTMB")
 library(polycor)
 library("glmmTMB")
-
+library("DescTools")
 
 #cor <- correlation(allInfo)
 #summary(cor)
 
 allInfo <- read_excel('../output/allExcels_negatiu.xlsx')
+
 allInfoLog <- allInfo[,]
 
-allInfoLog['Dinero_en_el_proyecto'] <- log2(allInfoLog['Dinero_en_el_proyecto']) 
+#bx = boxcox(I(Budget_Previous_Year+1) ~ . - Visitado, data = allInfoLog,lambda = seq(-0.25, 0.25, length = 10))
+
 allInfoLog['Budget_Previous_Year'] <- log2(allInfoLog['Budget_Previous_Year'])
 allInfoLog['Donor_Aid_Budget'] <- log2(allInfoLog['Donor_Aid_Budget'])
 allInfoLog['GDP'] <- log2(allInfoLog['GDP'])
@@ -21,36 +23,43 @@ allInfoLog['Public_Grant'] <- log2(allInfoLog['Public_Grant'])
 
 allInfoLog[allInfoLog<0] <- 0
 
-modelbin1 <- glm(Visitado~ONU+GDP+Public_Grant+Total_Funds+`%_Private_Funds`+`%_MAE_Funds`+Budget_Previous_Year+Donor_Aid_Budget+LatinAmerica+Africa+Universal+Colony+Delegation,data=allInfoLog,family = "binomial")
+hist(allInfoLog$'Donor_Aid_Budget')
+hist(allInfoLog$'GDP')
+hist(allInfoLog$'Public_Grant')
+hist(allInfoLog$'Budget_Previous_Year')
+
+
+#hist(allInfoLog$'Donor_Aid_Budget')
+#b <- box.cox(allInfoLog$'Donor_Aid_Budget')
+
+#hist(allInfoLog$'Budget_Previous_Year')
+#hist(allInfoLog$'GDP')
+
+table(allInfoLog$Visitado)
+
+#car::vif(model1)
+
+modelbin1 <- glm(Visitado~ONU+GDP+Public_Grant+Budget_Previous_Year+Donor_Aid_Budget+LatinAmerica+Africa+Colony+Delegation,data=allInfoLog,family = "binomial")
 summary(modelbin1)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin1)/logLik(nullmod)
+PseudoR2(modelbin1,"McFadden")
+
 
 #H1
-modelbin2 <- glm(Visitado~Public_Grant+Donor_Aid_Budget,data=allInfoLog,family = "binomial")
-summary(modelbin2)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin2)/logLik(nullmod)
-
-
-#H1.1
-modelbin3 <- glm(Visitado~Public_Grant+Donor_Aid_Budget+Total_Funds+`%_Private_Funds`+`%_MAE_Funds`,data=allInfoLog,family = "binomial")
+modelbin3 <- glm(Visitado~Public_Grant+Donor_Aid_Budget+Colony,data=allInfoLog,family = "binomial")
 summary(modelbin3)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin3)/logLik(nullmod)
+PseudoR2(modelbin3,"McFadden")
 
 
 #H2
-modelbin4 <- glm(Visitado~ONU+GDP+LatinAmerica+Africa+Universal+Colony,data=allInfoLog,family = "binomial")
+modelbin4 <- glm(Visitado~ONU+GDP+LatinAmerica+Africa+Colony,data=allInfoLog,family = "binomial")
 summary(modelbin4)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin4)/logLik(nullmod)
+PseudoR2(modelbin4,"McFadden")
 
 
-modelbin5 <- glm(Visitado~Budget_Previous_Year+Delegation,data=allInfoLog,family = "binomial")
+modelbin5 <- glm(Visitado~Budget_Previous_Year+Delegation+Colony,data=allInfoLog,family = "binomial")
 summary(modelbin5)
-nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
-1-logLik(modelbin5)/logLik(nullmod)
+PseudoR2(modelbin5,"McFadden")
+
 
 
 
@@ -69,6 +78,8 @@ nullmod <- glm(Visitado~1,data=allInfoLog, family="binomial")
 
 
 
+val <- 7.74958917761984e-289
+format(1810032000, scientific = FALSE)
 
 
 

@@ -132,7 +132,7 @@ def revisionNombres(inputName):
     return inputName
 
 def revisionPaises(inputName):
-    if inputName in ["territorios palestinos"]:
+    if inputName in ["territorios palestinos","ribera occidental y gaza"]:
         return "palestina"
     if inputName in ["guinea bissau"]:
         return "guinea-bissau"
@@ -144,7 +144,7 @@ def revisionPaises(inputName):
         return "algeria"
     if inputName in ["argelia"]:
         return "algeria"
-    if inputName in ["congo (republica democratica del congo)","r.d. congo"]:
+    if inputName in ["congo (republica democratica del congo)","r.d. congo","congo, republica democratica del"]:
         return "republica democratica del congo"
     if inputName in ["bosnia-herzegovina"]:
         return "bosnia y herzegovina"
@@ -180,6 +180,8 @@ def revisionPaises(inputName):
         return "moldavia"
     if inputName in ["pakistán"]:
         return "pakistan"
+    if inputName in ["vanuata"]:
+        return "vanuatu"
     if inputName in ["viet nam"]:
         return "vietnam"
     if inputName in ["republica arabe siria"]:
@@ -204,8 +206,8 @@ def revisionPaises(inputName):
         return "lesoto"
     if inputName in ["macedonia del norte"]:
         return "macedonia"
-    if inputName in ["republica democratica popular lao"]:
-        return "lao"
+    if inputName in ["republica democratica popular lao","lao"]:
+        return "laos"
     if inputName in ["hong kong, region administrativa especial"]:
         return "hong kong"
     if inputName in ["corea, republica de"]:
@@ -262,7 +264,7 @@ PC_Acciones = pd.read_excel('../dades/Datos_vf/Histórico subvenciones convocat
 new_header = PC_subvenciones.iloc[0] 
 PC_subvenciones = PC_subvenciones[1:] 
 PC_subvenciones.columns = new_header 
-
+q2013 =0
 for i in range(0,len(PC_subvenciones)):
     info = PC_subvenciones.iloc[i]
     
@@ -281,21 +283,21 @@ for i in range(0,len(PC_subvenciones)):
             if "SUBVENCIONES" not in ong[ong_nom][info['Año de Adjudicación']] :
                 ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"] = {}
             if info["Importe total subvención (€)"]!="RENUNCIA":
-                
-                paisos = info['País'].replace(' y ', ' , ').replace(".","").split(',')
-                
-                for j in range(len(paisos)):
-                    paisos[j]= revisionPaises(unicodedata.normalize('NFD', paisos[j].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )
-                for pais in paisos:
-                    if pais in paises:
-                        if pais not in ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"]:
-                            ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"][pais] = 0
-                        if pais not in dinerosEspanya[info['Año de Adjudicación']]:
-                            dinerosEspanya[info['Año de Adjudicación']][pais]=0
-                        ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"][pais]+= float(info["Importe total subvención (€)"])/len(paisos)
-                        dinerosEspanya[info['Año de Adjudicación']][pais]+=float(info["Importe total subvención (€)"])/len(paisos)
-                    else:
-                        pass
+                    paisos = info['País'].replace(' y ', ' , ').replace(".","").split(',')
+                    
+                    for j in range(len(paisos)):
+                        paisos[j]= revisionPaises(unicodedata.normalize('NFD', paisos[j].lower().strip()).encode('ascii', 'ignore').decode("utf-8") )
+                    for pais in paisos:
+                        if pais in paises:
+                            
+                            if pais not in ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"]:
+                                ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"][pais] = 0
+                            if pais not in dinerosEspanya[info['Año de Adjudicación']]:
+                                dinerosEspanya[info['Año de Adjudicación']][pais]=0
+                            ong[ong_nom][info['Año de Adjudicación']]["SUBVENCIONES"][pais]+= float(info["Importe total subvención (€)"])/len(paisos)
+                            dinerosEspanya[info['Año de Adjudicación']][pais]+=float(info["Importe total subvención (€)"])/len(paisos)
+                        else:
+                            pass
                     
 
 new_header = PC_Acciones.iloc[0] 
@@ -726,7 +728,7 @@ for i in range(0,len(treballadors)):
 
 
 # ["PROYECTOS"] 2013 a 2016    
-path = 'C:/Users/bcoma/Documents/Noemi/Tesis/dades/Datos_vf/projectes2013/'
+path = '../dades/Datos_vf/projectes2013/'
 for root, dirs, files in os.walk(path):
     for filename in files:
         
@@ -1219,6 +1221,8 @@ for i in range(len(onu)):
             paises_ONU[pais_onu] = {}
             paises_ONU[pais_onu]["ONU"] = {}
         paises_ONU[pais_onu]["ONU"][year]= info[year]
+        if year == 2016:
+            paises_ONU[pais_onu]["ONU"][2015]= info[year]    
 
 ###ingressos anuals països
 file = pd.read_excel('../dades/Data_Extract_From_Indicadores_del_desarrollo_mundial/GDP per capal constant 2010 USD.xls', sheet_name='Data')
@@ -1227,19 +1231,81 @@ for i in range(len(file)):
     info = file.iloc[i]
     if isinstance(info["Country Name"], str):
         pais_onu = revisionPaises(unicodedata.normalize('NFD', info["Country Name"].lower().strip()).encode('ascii', 'ignore').decode("utf-8") ) 
-        #str(info["Country Name"]).lower().strip()
         
         if pais_onu not in paises_ONU:
             paises_ONU[pais_onu] = {}
         paises_ONU[pais_onu]["money"] = {}
         for j in range(len(years)):
             paises_ONU[pais_onu]["money"][years[j]]= info[str(years[j])]
+paises_ONU["venezuela"]["money"][2015] = 13137
+paises_ONU["venezuela"]["money"][2016] = 10984
+paises_ONU["eritrea"]["money"][2012] = 417.09
+paises_ONU["eritrea"]["money"][2013] = 343.26
+paises_ONU["eritrea"]["money"][2014] = 447.27
+paises_ONU["eritrea"]["money"][2015] = 436.09
+paises_ONU["eritrea"]["money"][2016] = 469.23
+paises_ONU["sudan del sur"]["money"][2016] = 171.03
+paises_ONU["yibuti"]["money"][2009] = 1225
+paises_ONU["yibuti"]["money"][2011] = 1402.3
+paises_ONU["yibuti"]["money"][2012] = 1615.45
+paises_ONU["yibuti"]["money"][2013] = 1634.83
+paises_ONU["yibuti"]["money"][2014] = 1726.3
+paises_ONU["yibuti"]["money"][2015] = 2216.57
+paises_ONU["yibuti"]["money"][2016] = 2316.31
+paises_ONU["somalia"]["money"][2009] = 112.1
+paises_ONU["somalia"]["money"][2010] = 100.56
+paises_ONU["somalia"]["money"][2011] = 298.44
+paises_ONU["somalia"]["money"][2012] = 324.71
+paises_ONU["somalia"]["money"][2013] = 329.58
+paises_ONU["somalia"]["money"][2014] = 324.64
+paises_ONU["somalia"]["money"][2015] = 386.32
+paises_ONU["somalia"]["money"][2016] = 390
+paises_ONU["siria"]["money"][2009] = 2696.92
+paises_ONU["siria"]["money"][2010] = 3114.95
+paises_ONU["siria"]["money"][2011] = 3373.49
+paises_ONU["siria"]["money"][2012] = 4125.78
+paises_ONU["siria"]["money"][2013] = 1526.54
+paises_ONU["siria"]["money"][2014] = 1366.25
+paises_ONU["siria"]["money"][2015] = 1404.51
+paises_ONU["siria"]["money"][2016] = 941.02
+paises_ONU["corea del norte"]["money"][2009] = 519.25
+paises_ONU["corea del norte"]["money"][2010] = 629.84
+paises_ONU["corea del norte"]["money"][2011] = 671.42
+paises_ONU["corea del norte"]["money"][2012] = 733.86
+paises_ONU["corea del norte"]["money"][2013] = 735.33
+paises_ONU["corea del norte"]["money"][2014] = 768.41
+paises_ONU["corea del norte"]["money"][2015] = 856.79
+paises_ONU["corea del norte"]["money"][2016] = 880.78
+
+paises_ONU["sahara occidental"] = {}
+paises_ONU["sahara occidental"]["money"] = {}
+paises_ONU["sahara occidental"]["money"][2009] = paises_ONU["marruecos"]["money"][2009]*0.33
+paises_ONU["sahara occidental"]["money"][2010] = paises_ONU["marruecos"]["money"][2010]*0.33
+paises_ONU["sahara occidental"]["money"][2011] = paises_ONU["marruecos"]["money"][2011]*0.33
+paises_ONU["sahara occidental"]["money"][2012] = paises_ONU["marruecos"]["money"][2012]*0.33
+paises_ONU["sahara occidental"]["money"][2013] = paises_ONU["marruecos"]["money"][2013]*0.33
+paises_ONU["sahara occidental"]["money"][2014] = paises_ONU["marruecos"]["money"][2014]*0.33
+paises_ONU["sahara occidental"]["money"][2015] = paises_ONU["marruecos"]["money"][2015]*0.33
+paises_ONU["sahara occidental"]["money"][2016] = paises_ONU["marruecos"]["money"][2016]*0.33
+paises_ONU["islas cook"] = {}
+paises_ONU["islas cook"]["money"] = {}
+paises_ONU["islas cook"]["money"][2009] = 10886
+paises_ONU["islas cook"]["money"][2010] = 12300
+paises_ONU["islas cook"]["money"][2011] = 14022
+paises_ONU["islas cook"]["money"][2012] = 15564
+paises_ONU["islas cook"]["money"][2013] = 15550
+paises_ONU["islas cook"]["money"][2014] = 17314
+paises_ONU["islas cook"]["money"][2015] = 16448
+paises_ONU["islas cook"]["money"][2016] = 16925
+
+
 
 paises_ONU["serbia y montenegro"] = {}
 paises_ONU["serbia y montenegro"]["money"]= {}
 for year in paises_ONU["serbia"]["money"]:
     paises_ONU["serbia y montenegro"]["money"][year] = (paises_ONU["serbia"]["money"][year]*11+paises_ONU["montenegro"]["money"][year])/12
-    
+
+#paises_onu tinc diners i prioritat    
     
 mision = pd.read_excel('../dades/Datos_vf/misioìn todas ong.xlsx', sheet_name='misiónONGD')
 header = mision.iloc[0]
@@ -1265,6 +1331,7 @@ for i in range(len(mision)):
     if ongd not in ong:
         ong[ongd] = {}
     ong[ongd]["info"] = [info[4]]
+    
     
 universal = pd.read_excel('../Listado ONGD socias.xlsx', sheet_name='Hoja1')
 new_header = universal.iloc[0] 
@@ -1373,18 +1440,22 @@ for ong_nom in ongsFer:
                         if "SUBVENCIONES" in ong[ong_nom][year]:
                             if pais in ong[ong_nom][year]["SUBVENCIONES"]:
                                 worksheet.write(posExcel, 3, ong[ong_nom][year]["SUBVENCIONES"][pais])
+                            #else:
+                            #    if ((year-1) in ong[ong_nom]) and ("SUBVENCIONES" in ong[ong_nom][year-1]) and (pais in ong[ong_nom][year-1]["SUBVENCIONES"]):
+                            #        worksheet.write(posExcel, 3, ong[ong_nom][year-1]["SUBVENCIONES"][pais])
                             else:
-                                if ((year-1) in ong[ong_nom]) and ("SUBVENCIONES" in ong[ong_nom][year-1]) and (pais in ong[ong_nom][year-1]["SUBVENCIONES"]):
-                                        worksheet.write(posExcel, 3, ong[ong_nom][year-1]["SUBVENCIONES"][pais])
-                                else:
-                                    worksheet.write(posExcel, 3, 0)
+                                worksheet.write(posExcel, 3, 0)
                         else:
                             worksheet.write(posExcel, 3, 0)
                         
-                        if (year-1) in ong[ong_nom]:
-                            if "PROYECTOS" in ong[ong_nom][year-1]: 
-                                if pais in ong[ong_nom][year-1]["PROYECTOS"]:
-                                    worksheet.write(posExcel, 4, ong[ong_nom][year-1]["PROYECTOS"][pais])
+                        if year in [2013,2015]:
+                            pYear = year -2
+                        else:
+                            pYear = year-1
+                        if pYear in ong[ong_nom]:
+                            if "PROYECTOS" in ong[ong_nom][pYear]: 
+                                if pais in ong[ong_nom][pYear]["PROYECTOS"]:
+                                    worksheet.write(posExcel, 4, ong[ong_nom][pYear]["PROYECTOS"][pais])
                                 else:
                                     worksheet.write(posExcel, 4, 0)
                             else:
@@ -1543,7 +1614,8 @@ for ong_nom in ongsFer:
                 
 pickle.dump(ong, open( "./ong.p", "wb" ) )
 pickle.dump(delegacionesONG, open( "./delegaciones.p", "wb" ) )
-                
+pickle.dump(paises_ONU, open( "./paises_ONU.p", "wb" ) )
+pickle.dump(dinerosEspanya,open( "./dinerosEspanya.p", "wb" ) )
 
 """
 diputados = pd.read_excel('./data_congreso_diputados.xlsx', sheet_name='taulamare')
