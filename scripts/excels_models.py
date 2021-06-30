@@ -71,46 +71,51 @@ for ong in training:
             if year+"_"+pais not in entriesTotal:
                 if year in examples:
                     newEntry = copy.deepcopy(examples[year]) #copiem les dades amb la referencia de l'any
-                    newEntry.rename(index={newEntry.index[0]:year+"_"+pais},inplace=True)
-                    #if pais in paises_ONU:
-                    if "ONU" in paises_ONU[pais]:
-                        newEntry["ONU"] = paises_ONU[pais]["ONU"][int(year)]
-                    else:
-                        newEntry["ONU"] = 0
-                    newEntry["GDP"] = paises_ONU[pais]["money"][int(year)]
-                    #else:
-                    #    newEntry["ONU"] = 0
-                    #    newEntry["GDP"] = 0 #posar el minim
-                    if pais in spainAid[int(year)]:
-                        newEntry["Donor_Aid_Budget"] = spainAid[int(year)][pais] 
-                    else:
-                        newEntry["Donor_Aid_Budget"] =0
-                    if "SUBVENCIONES" in ongRaw[ong][int(year)]:
-                        if pais in ongRaw[ong][int(year)]["SUBVENCIONES"]:
-                            newEntry["Public_Grant"]= ongRaw[ong][int(year)]["SUBVENCIONES"][pais]
-                        else: newEntry["Public_Grant"]= 0
-                    else:
-                        newEntry["Public_Grant"]= 0
-                    if pais in oldColonies:
-                        newEntry["Colony"] = 1
-                    else:
-                        newEntry["Colony"] = 0
-                    if int(year) in [2013,2015]:
-                        pYear = int(year) -2
-                    else:
-                        pYear = int(year)-1
-                    if pYear in ongRaw[ong] and "PROYECTOS" in ongRaw[ong][pYear] and pais in ongRaw[ong][pYear]["PROYECTOS"]:
-                        newEntry["Budget_Previous_Year"] =ongRaw[ong][pYear]["PROYECTOS"][pais]
-                    else:
-                        newEntry["Budget_Previous_Year"] = 0
-                    if pais in delegacionesONG[ong][int(year)]:
-                        newEntry["Delegation"] = 1
-                    else:
-                        newEntry["Delegation"] = 0
-                    
-                    newEntry["Visitado"] = 0
-                    training[ong] = training[ong].append(newEntry)
-
+                else:
+                    for yearExample in examples:
+                        newEntry = copy.deepcopy(examples[yearExample]) #copiem les dades anteriors... total, canviem tot
+                        print(ong,year, pais,yearExample)
+                        break
+                newEntry.rename(index={newEntry.index[0]:year+"_"+pais},inplace=True)
+                #if pais in paises_ONU:
+                if "ONU" in paises_ONU[pais]:
+                    newEntry["ONU"] = paises_ONU[pais]["ONU"][int(year)]
+                else:
+                    newEntry["ONU"] = 0
+                newEntry["GDP"] = paises_ONU[pais]["money"][int(year)]
+                #else:
+                #    newEntry["ONU"] = 0
+                #    newEntry["GDP"] = 0 #posar el minim
+                if pais in spainAid[int(year)]:
+                    newEntry["Donor_Aid_Budget"] = spainAid[int(year)][pais] 
+                else:
+                    newEntry["Donor_Aid_Budget"] =0
+                if "SUBVENCIONES" in ongRaw[ong][int(year)]:
+                    if pais in ongRaw[ong][int(year)]["SUBVENCIONES"]:
+                        newEntry["Public_Grant"]= ongRaw[ong][int(year)]["SUBVENCIONES"][pais]
+                    else: newEntry["Public_Grant"]= 0
+                else:
+                    newEntry["Public_Grant"]= 0
+                if pais in oldColonies:
+                    newEntry["Colony"] = 1
+                else:
+                    newEntry["Colony"] = 0
+                if int(year) in [2013,2015]:
+                    pYear = int(year) -2
+                else:
+                    pYear = int(year)-1
+                if pYear in ongRaw[ong] and "PROYECTOS" in ongRaw[ong][pYear] and pais in ongRaw[ong][pYear]["PROYECTOS"]:
+                    newEntry["Budget_Previous_Year"] =ongRaw[ong][pYear]["PROYECTOS"][pais]
+                else:
+                    newEntry["Budget_Previous_Year"] = 0
+                if pais in delegacionesONG[ong][int(year)]:
+                    newEntry["Delegation"] = 1
+                else:
+                    newEntry["Delegation"] = 0
+                
+                newEntry["Visitado"] = 0
+                training[ong] = training[ong].append(newEntry)
+               
     training[ong].to_excel("../output/"+ong+"_positivos_negativos.xlsx")
     
 

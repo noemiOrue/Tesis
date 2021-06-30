@@ -37,6 +37,9 @@ from sklearn import preprocessing
 import _pickle as pickle
 import tensorflow.keras
 import copy
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 tensorflow.test.is_gpu_available()
 np.random.seed(7)
@@ -44,6 +47,52 @@ from tensorflow import set_random_seed
 
 data = pd.read_excel("../output/allExcels_negatiu.xlsx",index_col = 0, header=0)
 data.columns
+corrPearson = data.corr(method='pearson')
+corrSpearman = data.corr(method='spearman')
+corrKendall = data.corr(method='kendall')
+
+#sns.heatmap(corrSpearman)
+corrSpearman_plot = copy.deepcopy(corrSpearman)
+
+nameVariables = list(corrSpearman.columns)
+nameVariables[0] = "UN LDCs"
+nameVariables[1] = "GDP per capita"
+nameVariables[2] = "Public Grant"
+nameVariables[3] = "Budget Previous Year"
+nameVariables[4] = "Donor Aid Budget"
+nameVariables[5] = "Latin America Mission"
+nameVariables[6] = "Africa Mission"
+nameVariables[9] = "Project Developed"
+corrSpearman_plot.drop(["Visitado"],axis=1,inplace=True)
+corrSpearman_plot.drop(["Visitado"],axis=0,inplace=True)
+
+
+mask = np.triu(np.ones_like(corrSpearman_plot, dtype=np.bool))
+plt.figure(figsize=(16, 6))
+# Store heatmap object in a variable to easily access it when you want to include more features (such as title).
+# Set the range of values to be displayed on the colormap from -1 to 1, and set the annotation to True to display the correlation values on the heatmap.
+heatmap = sns.heatmap(corrSpearman_plot,mask=mask, annot=True,xticklabels=nameVariables[:9], yticklabels=nameVariables[:9],vmin=-1, vmax=1,cmap="RdYlBu_r")
+plt.xticks(rotation=45)
+# Give a title to the heatmap. Pad defines the distance of the title from the top of the heatmap.
+heatmap.set_title("Spearman's 'Correlation Heatmap", fontdict={'fontsize':12}, pad=12);
+
+corrSpearman_plot_2 = copy.deepcopy(corrSpearman)
+nameVariables[0] = "UN LDCs"
+nameVariables[1] = "GDP per capita"
+nameVariables[2] = "Public Grant"
+nameVariables[3] = "Budget Previous Year"
+nameVariables[4] = "Donor Aid Budget"
+nameVariables[5] = "Latin America Mission"
+nameVariables[6] = "Africa Mission"
+nameVariables[9] = "Project Developed"
+corrSpearman_plot_2.columns=nameVariables
+corrSpearman_plot_2.index=nameVariables
+corrSpearman_plot_2.drop(["Project Developed"],axis=0,inplace=True)
+
+plt.figure(figsize=(4, 8))
+heatmap = sns.heatmap(corrSpearman_plot_2[['Project Developed']].sort_values(by='Project Developed', ascending=False), vmin=-1, vmax=1, annot=True,cmap="RdYlBu_r")
+heatmap.set_title('Features Correlating with Project Developed', fontdict={'fontsize':12});
+
 #data = data.drop('%_MAE_Funds',1)
 #data = data.drop('Total_Funds',1)
 #data = data.drop('%_Private_Funds', 1)
@@ -91,19 +140,20 @@ for root, dirs, files in os.walk(path):
 
 training_LSTM_8 = []
 y_LSTM_8 = []           
-
+qND = 0
 for ong in training_LSTM:
     for country in training_LSTM[ong]:
         ages = ["2009","2010","2011","2012","2013","2014","2015","2016"]
                
         newdata = []
-        qND = 0
+        
         for posAge in range(len(ages)):
             if ages[posAge] in training_LSTM[ong][country]:
                 data = training_LSTM[ong][country][ages[posAge]]
                 newdata.append(data)
             else:
-                qND=1
+                print(ong,country)
+                qND+=1
                 newdata.append([0,0,0,0,0,0,0,0,0])
             if ages[posAge]=="2016":
                 yR = 0
@@ -123,11 +173,10 @@ inici = time.time()
 model_bin = Sequential()
 
 model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
-                           recurrent_dropout=0.2,return_sequences=True))
-model_bin.add(Dropout(0.2))
+                           return_sequences=True,recurrent_dropout=0.2))
 model_bin.add(BatchNormalization())
 model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
-model_bin.add(Dropout(0.2))
+#model_bin.add(Dropout(0.2))
 model_bin.add(BatchNormalization())
 model_bin.add(Dense(1, activation="sigmoid"))
 nadam_opt = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999)
@@ -142,16 +191,14 @@ model_bin = Sequential()
 
 model_bin.add(LSTM(100, implementation=2, input_shape=(training_LSTM_8_pad.shape[1], training_LSTM_8_pad.shape[2]),
                            recurrent_dropout=0.2,return_sequences=True))
-model_bin.add(Dropout(0.2))
 model_bin.add(BatchNormalization())
 model_bin.add(LSTM(100, implementation=2,recurrent_dropout=0.2))
-model_bin.add(Dropout(0.2))
 model_bin.add(BatchNormalization())
 model_bin.add(Dense(1, activation="sigmoid"))
 nadam_opt = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999)
 
 model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
-model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=6)
+model_bin.fit(training_LSTM_8_pad, y_LSTM_8, epochs=4)
 #early_stopping = EarlyStopping(patience=0,mode="min",monitor='val_loss')
 final = time.time()
 
@@ -168,6 +215,14 @@ pickle.dump(training_LSTM_8_pad_B,open("./fitxerShapleyLSTM_8_B","wb"))
 training_LSTM_8_pad_B = pickle.load(open("./fitxerShapleyLSTM_8_B","rb"))
 
 
+nameVariables = list(proyectos.columns)
+nameVariables[0] = "UN LDCs"
+nameVariables[1] = "GDP per capita"
+nameVariables[2] = "Public Grant"
+nameVariables[3] = "Budget Previous Year"
+nameVariables[4] = "Donor Aid Budget"
+nameVariables[5] = "Latin America Mission"
+nameVariables[6] = "Africa Mission"
 
 shap_Specific= []
 shap_SpecificValues = []
@@ -178,12 +233,12 @@ variables = []
 for i in range(len(training_LSTM_8_pad_B[0])):
     valSV = []
     valFeature = []
-    for j in range(len(training_LSTM_8_pad_B[0][0])):
-        for k in range(len(training_LSTM_8_pad_B[0][0][0])): 
+    for j in range(len(training_LSTM_8_pad_B[0][0])): #0 --> 7 (8 anys)
+        for k in range(len(training_LSTM_8_pad_B[0][0][0])): #0-->8 (9 variables) 
             valSV.append(training_LSTM_8_pad_B[0][i][j][k])
             valFeature.append(training_LSTM_8_pad[i][j][k])
             if i ==0:
-                variable = proyectos.columns[k]
+                variable =nameVariables[k]
                 variable = variable+"_"+["2009","2010","2011","2012","2013","2014","2015","2016"][j]
                 variables.append(variable)
     shap_Specific.append(copy.deepcopy(valSV))
@@ -193,13 +248,43 @@ for i in range(len(training_LSTM_8_pad_B[0])):
         shap_SpecificValues_P.append(copy.deepcopy(valFeature))
 
 
-shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,plot_type="bar",max_display=15)
-shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,max_display=15)
+shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,max_display=10)
+
+shap.summary_plot(np.array(shap_Specific_P),features=np.array(shap_SpecificValues_P),feature_names=variables,plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_P),features=np.array(shap_SpecificValues_P),feature_names=variables,max_display=10)
+
+shap_Specific_H1_H2 = []
+shap_SpecificValues_H1_H2 = []
+pos_H1_H2 = [63,64,65,67,68,69]
+for i in range(len(shap_Specific)):
+    entry = []
+    entryValues = []
+    for j in pos_H1_H2:
+        entry.append(shap_Specific[i][j])
+        entryValues.append(shap_SpecificValues[i][j])
+    shap_Specific_H1_H2.append(copy.deepcopy(entry))
+    shap_SpecificValues_H1_H2.append(copy.deepcopy(entryValues))
 
 
-shap.summary_plot(np.array(shap_Specific_P),features=np.array(shap_SpecificValues_P),feature_names=variables,plot_type="bar",max_display=20)
-shap.summary_plot(np.array(shap_Specific_P),features=np.array(shap_SpecificValues_P),feature_names=variables,max_display=20)
 
+shap_Specific_H1_H2_P = []
+shap_SpecificValues_H1_H2_P = []
+for i in range(len(shap_Specific_P)):
+    entry = []
+    entryValues = []
+    for j in pos_H1_H2:
+        entry.append(shap_Specific_P[i][j])
+        entryValues.append(shap_SpecificValues_P[i][j])
+    shap_Specific_H1_H2_P.append(copy.deepcopy(entry))
+    shap_SpecificValues_H1_H2_P.append(copy.deepcopy(entryValues))
+
+
+shap.summary_plot(np.array(shap_Specific_H1_H2),features=np.array(shap_SpecificValues_H1_H2),feature_names=["UN LDCs_2016","GDP per capita_2016","Public Grant_2016","Donor Aid Budget_2016","Latin America Mission_2016","Africa Mission_2016"],plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_H1_H2),features=np.array(shap_SpecificValues_H1_H2),feature_names=["UN LDCs_2016","GDP per capita_2016","Public Grant_2016","Donor Aid Budget_2016","Latin America Mission_2016","Africa Mission_2016"],max_display=10)
+
+shap.summary_plot(np.array(shap_Specific_H1_H2_P),features=np.array(shap_SpecificValues_H1_H2_P),feature_names=["UN LDCs_2016","GDP per capita_2016","Public Grant_2016","Donor Aid Budget_2016","Latin America Mission_2016","Africa Mission_2016"],plot_type="bar",max_display=10)
+shap.summary_plot(np.array(shap_Specific_H1_H2_P),features=np.array(shap_SpecificValues_H1_H2_P),feature_names=["UN LDCs_2016","GDP per capita_2016","Public Grant_2016","Donor Aid Budget_2016","Latin America Mission_2016","Africa Mission_2016"],max_display=10)
        
 
 
