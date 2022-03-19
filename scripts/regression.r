@@ -6,7 +6,6 @@ library(readxl)
 library(polycor)
 library("glmmTMB")
 library("DescTools")
-library(glmnet)
 
 #cor <- correlation(allInfo)
 #summary(cor)
@@ -37,44 +36,12 @@ hist(allInfoLog$'Budget_Previous_Year')
 #hist(allInfoLog$'GDP')
 
 table(allInfoLog$Visitado)
-table(allInfoLog$Budget_Previous_Year>0)
-
-
-table(allInfoLog$Visitado,allInfoLog$Delegation)
-table(allInfoLog$Visitado,allInfoLog$Budget_Previous_Year>0)
-
-mean(allInfoLog$Budget_Previous_Year)
-
-table(allInfoLog$Visitado,allInfoLog$Budget_Previous_Year>0)
 
 #car::vif(model1)
-
-modelbin0 <- glm(Visitado~Budget_Previous_Year,data=allInfoLog,family = "binomial")
-summary(modelbin0)
-PseudoR2(modelbin0,"McFadden")
-
-modelbin0 <- glm(Visitado~Delegation,data=allInfoLog,family = "binomial")
-summary(modelbin0)
-PseudoR2(modelbin0,"McFadden")
-
-
-                            
 
 modelbin1 <- glm(Visitado~ONU+GDP+Public_Grant+Budget_Previous_Year+Donor_Aid_Budget+LatinAmerica+Africa+Colony+Delegation,data=allInfoLog,family = "binomial")
 summary(modelbin1)
 PseudoR2(modelbin1,"McFadden")
-
-
-t <- as.matrix(allInfoLog[,'Visitado'])
-x <- as.matrix(allInfoLog[,2:10])
-x2<-apply(x, MARGIN = 2, FUN = function(X) (X - min(X))/diff(range(X)))
-
-model.lasso <- cv.glmnet(x1, t,family = "binomial",alpha=0.5, nfolds = 4)
-coef(model.lasso)
-
-PseudoR2(model.lasso ,"McFadden")
-
-help(cv.glmnet)
 
 library(car)
 vif(modelbin1)
