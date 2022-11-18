@@ -227,7 +227,7 @@ oldColonies = oldColonies + ["bermudas"]
 print(oldColonies.sort())
 
 delegacionesONG = {}
-path = 'C:/Users/bcoma/Documents/GitHub/Tesis_UB/dades/delegaciones'
+path = 'C:/Users/bcoma/Documents/GitHub/NGO paper/dades/delegaciones'
 for root, dirs,files in os.walk(path):
     for dire in dirs:
         ong = dire[dire.index("_")+1:]
@@ -251,8 +251,6 @@ for root, dirs,files in os.walk(path):
             delegacionesONG[ong][2013] = copy.deepcopy(delegacionesONG[ong][2012])
         if 2015 in delegacionesONG[ong]:
             delegacionesONG[ong][2014] = copy.deepcopy(delegacionesONG[ong][2015])
-
-
 
 
 dinerosEspanya = {}
@@ -1360,7 +1358,7 @@ ongsFer = ongsFer + ["mundubat","paz con dignidad","prosalus","sed","iscod","med
 ongsFer = ongsFer + ["frs","entreculturas","iberoamerica europa","fuden","promoción social","proyde","pueblos hermanos"]
 
 for ong_nom in ongsFer:
-    
+    print(ong_nom)
     posExcel = 1
     workbook = xlsxwriter.Workbook("../output/"+str(ong_nom)+".xlsx")
     worksheet = workbook.add_worksheet()
@@ -1410,6 +1408,7 @@ for ong_nom in ongsFer:
     worksheet.write('AO1', 'Dinero_en_el_proyecto',bold)
     
     for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        print(year)
         if year in ong[ong_nom]:
             paisos = []
             if "PROYECTOS" in ong[ong_nom][year]:

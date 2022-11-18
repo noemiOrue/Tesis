@@ -5,12 +5,15 @@ import numpy
 import copy
 import _pickle as pickle
 from sklearn.preprocessing import MinMaxScaler
+import unicodedata
+
 
 
 #leemos excels
 
 listColumns = ["ONU","GDP","Public_Grant","Budget_Previous_Year","Donor_Aid_Budget"]
 listColumns = listColumns + ["LatinAmerica",'Africa','Colony','Delegation','Visitado'] 
+listColumns = listColumns + ["ControlofCorruption","RuleofLaw","RegulatoryQuality","GovernmentEffectiveness","Political StabilityNoViolence","VoiceandAccountability","generic"]
 
 training = {}
 path = '../output/'
@@ -118,6 +121,164 @@ for ong in training:
                
     training[ong].to_excel("../output/"+ong+"_positivos_negativos.xlsx")
     
+import unicodedata
+import numpy as np
+
+import pandas
+
+def correctCountries(c):
+    if c == "afghanistan":
+        return "afganistan"
+    elif c == "libya":
+        return "libia"
+    elif c == "kenya":
+        return "kenia"
+    elif c == "croatia":
+        return "croacia"
+    elif c == "greece":
+        return "grecia"
+    elif c == "italy":
+        return "italia"
+    elif c == "malaysia":
+        return "malasia"
+    elif c == "jordan":
+        return "jordania"
+    elif c == "thailand":
+        return "tailandia"
+    elif c == "ukraine":
+        return "ucrania"
+    elif c == "cameroon":
+        return "camerun"
+    elif c == "egypt, arab rep.":
+        return "egipto"
+    elif c == "congo, dem. rep.":
+        return "republica democratica del congo"
+    elif c == "congo, rep.":
+        return "republica del congo"
+    elif c == "venezuela, rb":
+        return "venezuela"
+    elif c == "brazil":
+        return "brasil"
+    elif c == "ethiopia":
+        return "etiopia"
+    elif c == "morocco":
+        return "marruecos"
+    elif c == "turkiye":
+        return "turquia"
+    elif c == "japan":
+        return "japon"
+    elif c == "russian federation":
+        return "rusia"
+    elif c == "cote d'ivoire":
+        return "costa de marfil"
+    elif c == "dominican republic":
+        return "republica dominicana"
+    elif c == "iran, islamic rep.":
+        return "iran"
+    elif c == "iraq":
+        return "irak"
+    elif c == "belize":
+        return "belice"
+    elif c == "lesotho":
+        return "lesoto"
+    elif c == "zimbabwe":
+        return "zimbabue"
+    elif c == "tajikistan":
+        return "tayikistan"
+    elif c == "libano":
+        return "lebanon"
+    return c
+
+df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="VoiceandAccountability")    
+dictCountries = {}
+dictCountries["VoiceandAccountability"] = {}
+for country in df["Country/Territory"].unique():
+    countryP = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+    countryP = correctCountries(countryP)
+    dictCountries["VoiceandAccountability"][countryP] = {}
+    entry = df.loc[df["Country/Territory"] == country]
+    for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        dictCountries["VoiceandAccountability"][countryP][year] = float(entry["Estimate "+str(year)])
+
+df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="Political StabilityNoViolence")    
+dictCountries["Political StabilityNoViolence"] = {}
+for country in df["Country/Territory"].unique():
+    countryP = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+    countryP = correctCountries(countryP)
+
+    dictCountries["Political StabilityNoViolence"][countryP] = {}
+    entry = df.loc[df["Country/Territory"] == country]
+    for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        dictCountries["Political StabilityNoViolence"][countryP][year] = float(entry["Estimate "+str(year)])
+        
+df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="GovernmentEffectiveness")    
+dictCountries["GovernmentEffectiveness"] = {}
+for country in df["Country/Territory"].unique():
+    countryP = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+    countryP = correctCountries(countryP)
+
+    dictCountries["GovernmentEffectiveness"][countryP] = {}
+    entry = df.loc[df["Country/Territory"] == country]
+    for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        dictCountries["GovernmentEffectiveness"][countryP][year] = float(entry["Estimate "+str(year)])
+df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="RegulatoryQuality")    
+dictCountries["RegulatoryQuality"] = {}
+for country in df["Country/Territory"].unique():
+    countryP = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+    countryP = correctCountries(countryP)
+
+    dictCountries["RegulatoryQuality"][countryP] = {}
+    entry = df.loc[df["Country/Territory"] == country]
+    for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        dictCountries["RegulatoryQuality"][countryP][year] = float(entry["Estimate "+str(year)])
+
+df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="RuleofLaw")    
+dictCountries["RuleofLaw"] = {}
+for country in df["Country/Territory"].unique():
+    countryP = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+    countryP = correctCountries(countryP)
+
+    dictCountries["RuleofLaw"][countryP] = {}
+    entry = df.loc[df["Country/Territory"] == country]
+    for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        dictCountries["RuleofLaw"][countryP][year] = float(entry["Estimate "+str(year)])
+
+df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="ControlofCorruption")    
+dictCountries["ControlofCorruption"] = {}
+for country in df["Country/Territory"].unique():
+    countryP = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+    countryP = correctCountries(countryP)
+
+    dictCountries["ControlofCorruption"][countryP] = {}
+    entry = df.loc[df["Country/Territory"] == country]
+    for year in [2009,2010,2011,2012,2013,2014,2015,2016]:
+        dictCountries["ControlofCorruption"][countryP][year] = float(entry["Estimate "+str(year)])
+
+for root, dirs, files in os.walk(path):
+    for filename in files:
+        if "_positivos_negativos" in filename and "còpia" not in filename:
+            df = pandas.read_excel('../output/'+filename, header=0,index_col = 0)    
+            for newEntry in ["ControlofCorruption","RuleofLaw","RegulatoryQuality","GovernmentEffectiveness","Political StabilityNoViolence","VoiceandAccountability"]:
+                df[newEntry]=0
+                for index, row in df.iterrows():
+                    country =index[index.index("_")+1:]
+                    year = index[:index.index("_")]
+                    
+                    if country in dictCountries[newEntry]:
+                        print("si")
+                        value =  dictCountries[newEntry][country]
+                        df.loc[index,newEntry] = value[int(year)]
+                    else:
+                        print("no")
+                
+            df["generic"] = df[["ControlofCorruption","RuleofLaw","RegulatoryQuality","GovernmentEffectiveness","Political StabilityNoViolence","VoiceandAccountability"]].mean(axis=1)
+            df.to_excel("../output/"+filename[:-5]+"_2.xlsx")
+                        
+
+
+
+
+
 
 PaisosVisitatsNumero = {}
 PaisosVisitatsRatio = {}
@@ -136,16 +297,16 @@ trainingGlobal = pandas.DataFrame()
 trainingGlobal_negatiu = pandas.DataFrame()
 for root, dirs, files in os.walk(path):
     for filename in files:
-        if "_negativos" in filename:
+        if "_negativos_2" in filename:
             proyectos = pandas.read_excel(path+filename, sheet_name='Sheet1',index_col = "Pais-Año")
             proyectos = proyectos[listColumns]
             trainingGlobal_negatiu = trainingGlobal_negatiu.append(proyectos)
             
 trainingGlobal_negatiu.to_excel("../output/allExcels_negatiu.xlsx",columns=listColumns)
-    
 
 
-len(trainingGlobal_negatiu)
+
+
 
 
 

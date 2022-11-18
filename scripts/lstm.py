@@ -66,6 +66,11 @@ data['Budget_Previous_Year'] = np.log(data['Budget_Previous_Year']) #skew data
 data['Donor_Aid_Budget'] = np.log(data['Donor_Aid_Budget'])
 data[data < 0] = 0
 
+data2 = data.loc[data["ControlofCorruption"]!=0]
+resCorr = data.corr(method="pearson")
+resCorr2 = data2.corr(method="pearson")
+
+
 scaler = MinMaxScaler(feature_range=(0, 1))
 scaler = scaler.fit(data.values)
 
@@ -78,13 +83,14 @@ pos = 0
 path = '../output/'
 for root, dirs, files in os.walk(path):
     for filename in files:
-        if "_negativos" in filename:
+        if "_negativos_2" in filename:
             
             
             name_ONG = filename[:filename.index("_")]
             training_LSTM[name_ONG] = {}
             y_LSTM[name_ONG] = {}
-            proyectos = pd.read_excel(path+filename, sheet_name='Sheet1',index_col = "Pais-Año")
+            proyectos = pd.read_excel(path+filename,index_col =0)
+            posVisitado = proyectos.columns.get_loc("Visitado")
 
             proyectos['Budget_Previous_Year'] = np.log(proyectos['Budget_Previous_Year'])
             proyectos['Donor_Aid_Budget'] = np.log(proyectos['Donor_Aid_Budget'])
@@ -95,14 +101,16 @@ for root, dirs, files in os.walk(path):
             for index, row in proyectos.iterrows():
                 age = index[:4]
                 country = index[5:]
+                
                 if country not in training_LSTM[name_ONG]:
                     training_LSTM[name_ONG][country] = {}
                     y_LSTM[name_ONG][country] = {}
+                y_LSTM[name_ONG][country][age]= row["Visitado"]
                 
                 row = scaler.transform([row])
-                y_LSTM[name_ONG][country][age]= row[0][-1]
-            
-                training_LSTM[name_ONG][country][age]= row[0][:-1]
+                
+                row2 = np.delete(row,posVisitado)
+                training_LSTM[name_ONG][country][age]= row2
 
 q = []
 q1 = []
@@ -173,22 +181,22 @@ for ong in training_LSTM:
                     newdata_noPath4Years.append(data2)
 
                 else:
-                    newdata4.append([0,0,0,0,0,0,0,0,0])
+                    newdata4.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
                     newdata_noPath4Years.append(data)
                     
                 if posAge%2==0:
                     newdata2_2.append(data)
                 else:
-                    newdata2_2.append([0,0,0,0,0,0,0,0,0])
+                    newdata2_2.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
                     
             else:
                 print(ong,country)
                 qND+=1
-                newdata.append([0,0,0,0,0,0,0,0,0])
+                newdata.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
                 if posAge <4:
-                    newdata4.append([0,0,0,0,0,0,0,0,0])
+                    newdata4.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
                 if posAge%2==0:
-                    newdata2_2.append([0,0,0,0,0,0,0,0,0])
+                    newdata2_2.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
             if ages[posAge]=="2016":
                 yR = 0
                 y = 0
@@ -281,7 +289,7 @@ model_bin.add(Dense(1, kernel_regularizer=regularizers.l1_l2(l1=0.001, l2=0.001)
 nadam_opt = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999)
 
 model_bin.compile(loss='binary_crossentropy', optimizer=nadam_opt)
-model_bin.fit(training_LSTM_8_pad, np.array(y_LSTM_8), epochs=21)
+model_bin.fit(training_LSTM_8_pad, np.array(y_LSTM_8), epochs=26)
 #early_stopping = EarlyStopping(patience=0,mode="min",monitor='val_loss')
 final = time.time()
 """
@@ -327,6 +335,8 @@ nameVariables[4] = "Donor Aid Budget"
 nameVariables[5] = "Latin America Mission"
 nameVariables[6] = "Africa Mission"
 
+
+
 shap_Specific= []
 shap_SpecificValues = []
 shap_Specific_P= []
@@ -353,6 +363,9 @@ for i in range(len(training_LSTM_8_pad_B[0])):
 
 shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,plot_type="bar",max_display=15)
 shap.summary_plot(np.array(shap_Specific),features=np.array(shap_SpecificValues),feature_names=variables,max_display=15)
+
+
+
 
 
 predictions = model_bin.predict(training_LSTM_8_pad)[:,0]
