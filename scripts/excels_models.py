@@ -22,8 +22,15 @@ for root, dirs, files in os.walk(path):
         print(filename)
         if "_" not in filename and ".png" not in filename and ".txt" not in filename and "allExcels" not in filename and '~' not in filename:
             proyectos = pandas.read_excel(path+filename, sheet_name='Sheet1',index_col = "Pais-Año")
+            for col in listColumns:
+                if col not in proyectos.columns:
+                    proyectos[col] = None  # or 0 if numeric
             proyectos = proyectos[listColumns]
             training[filename[:-5]]=proyectos.replace("..",0)
+            
+            for index, row in proyectos.iterrows():
+                if row["Budget_Previous_Year"] < 100 and row["Budget_Previous_Year"] > 0:
+                    print("FOUND")
 
 #training tenim tota la informacio de totes les ong
 
@@ -117,7 +124,9 @@ for ong in training:
                     newEntry["Delegation"] = 0
                 
                 newEntry["Visitado"] = 0
-                training[ong] = training[ong].append(newEntry)
+                
+                training[ong] = pandas.concat([training[ong], newEntry])
+                
                
     training[ong].to_excel("../output/"+ong+"_positivos_negativos.xlsx")
     
@@ -187,6 +196,32 @@ def correctCountries(c):
         return "tayikistan"
     elif c == "libano":
         return "lebanon"
+    elif c == "filipinas":
+        return "philippines"
+    elif c == "moldavia":
+        return "moldova"
+    elif c == "mauricio":
+        return "mauritius"
+    elif c == "ruanda":
+        return "rwanda"
+    elif c == "papua nueva guinea":
+        return "papua new guinea"
+    elif c == "lituania":
+        return "lithuania"
+    elif c == "tunez":
+        return "tunisia"
+    elif c == "sudafrica":
+        return "south africa"
+    elif c == "corea del norte":
+        return "korea, dem. rep."
+    elif c == "sierra leona":
+        return "sierra leone"
+    elif c == "bielorrusia":
+        return "belarus"
+    elif c == "republica centroafricana":
+        return "central african republic"
+    elif c == "santo tome y principe":
+        return "são tomé and principe"
     return c
 
 df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="VoiceandAccountability")    
@@ -262,10 +297,11 @@ for root, dirs, files in os.walk(path):
                 df[newEntry]=0
                 for index, row in df.iterrows():
                     country =index[index.index("_")+1:]
+                    country = unicodedata.normalize('NFD', country).encode('ascii', 'ignore').decode("utf-8").lower()
+                    country = correctCountries(country) 
                     year = index[:index.index("_")]
                     
                     if country in dictCountries[newEntry]:
-                        print("si")
                         value =  dictCountries[newEntry][country]
                         df.loc[index,newEntry] = value[int(year)]
                     else:
@@ -276,6 +312,13 @@ for root, dirs, files in os.walk(path):
                         
 
 
+for root, dirs, files in os.walk(path):
+    for filename in files:
+        if filename.endswith(".xlsx") and "_2" in filename:
+            ngo_name = filename.split("_")[0]  # Get part before the first "_"
+            df = pandas.read_excel("../output/"+filename)
+            df["NGO"] = ngo_name  # Add NGO column
+            df.to_excel("../output/"+filename, index=False)
 
 
 
@@ -299,8 +342,12 @@ for root, dirs, files in os.walk(path):
     for filename in files:
         if "_negativos_2" in filename:
             proyectos = pandas.read_excel(path+filename, sheet_name='Sheet1',index_col = "Pais-Año")
-            proyectos = proyectos[listColumns]
-            trainingGlobal_negatiu = trainingGlobal_negatiu.append(proyectos)
+            proyectos = proyectos[listColumns+["NGO"]]
+            proyectos["Pais-Año"] = proyectos.index  # bring index back into a column
+
+            proyectos.set_index(["Pais-Año", "NGO"], inplace=True)
+            trainingGlobal_negatiu = pandas.concat([trainingGlobal_negatiu, proyectos])
+
             
 trainingGlobal_negatiu.to_excel("../output/allExcels_negatiu.xlsx",columns=listColumns)
 
