@@ -17,6 +17,14 @@ listColumns = listColumns + ["ControlofCorruption","RuleofLaw","RegulatoryQualit
 
 training = {}
 path = '../output/'
+
+for filename in os.listdir(path):
+    file_path = os.path.join(path, filename)
+    if os.path.isfile(file_path) and "_" in filename:
+        os.remove(file_path)
+        print(f"Deleted: {file_path}")
+
+
 for root, dirs, files in os.walk(path):
     for filename in files:
         print(filename)
@@ -221,7 +229,42 @@ def correctCountries(c):
     elif c == "republica centroafricana":
         return "central african republic"
     elif c == "santo tome y principe":
-        return "são tomé and principe"
+        return "sao tome and principe"
+    elif c == "siria":
+        return "syrian arab republic"
+    elif c == "antigua y barbuda":
+        return "antigua and barbuda"
+    elif c == "hungria":
+        return "hungary"
+    elif c == "kazajistan":
+        return "kazakhstan"
+    elif c == "trinidad y tobago":
+        return "trinidad and tobago"
+    elif c == "guinea ecuatorial":
+        return "equatorial guinea"
+    elif c == "camboya":
+        return "cambodia"
+    elif c == "cabo verde":
+        return "cape verde"
+    elif c == "azerbaiyan":
+        return "azerbaijan"
+    elif c == "gambia":
+        return 'gambia, the'
+    elif c == "sudan del sur":
+        return "south sudan"
+    elif c == "macedonia":
+        return "north macedonia"
+    elif c== "rumania":
+        return "romania"
+    elif c == "timor oriental":
+        return "timor-leste"
+    elif c == "yibuti":
+        return "djibouti"
+    elif c == "kirguistan":
+        return "kyrgyz republic"
+    elif c == "bosnia y herzegovina":
+        return "bosnia and herzegovina"
+    
     return c
 
 df = pandas.read_excel('../dades/wgidataset_processed.xlsx', header=15,sheet_name="VoiceandAccountability")    
