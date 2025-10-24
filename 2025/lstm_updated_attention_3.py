@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sun Sep 21 18:44:37 2025
+
+@author: 72458991
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Sun Jun  8 11:45:06 2025
 
 @author: 72458991
@@ -38,7 +45,7 @@ data['ODA Grants Spain']   = np.log1p(data['ODA Grants Spain'])
 
 
 
-avoid_cols = ["Country_Year", 'NGO', 'Country', 'Year', 'Visitado','RuleofLaw','RegulatoryQuality','GovernmentEffectiveness','VoiceandAccountability','generic','cumulative_path_dependence',"NGO Allocation to Country, Previous Year"]
+avoid_cols = ["Country_Year", 'NGO', 'Country', 'Year', 'Visitado','RuleofLaw','RegulatoryQuality','GovernmentEffectiveness','VoiceandAccountability','generic','cumulative_path_dependence',"NGO Allocation to Country ($), Previous Year"]
 include_cols = [c for c in data.columns if c not in avoid_cols and c not in ['Budget_Previous_Year']]
 #include_cols = [c for c in data.columns if c not in avoid_cols and c not in ['Project_Last_Year']]
 
@@ -128,9 +135,28 @@ y = np.array(y_list, dtype=np.int64)
 
 np.sum(y==1)
 
+import numpy as np
 
-X[:, 0:5, :] = 0
-#X[:, 6:8, :] = 0
+# Suppose X has shape (N, T, F)
+# Map feature names to indices
+feat_map = {name: i for i, name in enumerate(include_cols)}
+
+# Which features to zero
+feats_to_zero = [
+    "Delegation",
+    "NGO Allocation to Country, Previous Year"
+]
+feat_idx = [feat_map[f] for f in feats_to_zero if f in feat_map]
+
+# Map years to row indices
+year_map = {yr: i for i, yr in enumerate(all_years)}
+years_to_zero = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
+year_idx = [year_map[y] for y in years_to_zero if y in year_map]
+
+# Modify X in place
+for yi in year_idx:
+    X[:, yi, feat_idx] = 0
+
 
 
 # ============================================================
@@ -559,7 +585,7 @@ BEST_LR          = 0.0001
 BEST_WEIGHT_DECAY= 0
 BEST_GRAD_CLIP   = 2.0
 # From "Mean best epoch: 23.5" -> use median/rounded epochs
-E_STAR = 80
+E_STAR = 100
 
 print(f"Using best config: HS={BEST_HIDDEN_SIZE}, L={BEST_NUM_LAYERS}, "
       f"DO={BEST_DROPOUT}, BS={BEST_BATCH_SIZE}, LR={BEST_LR}, "
@@ -864,7 +890,7 @@ explainer = shap.KernelExplainer(predict_fn, X_background_flat)
 
 # Still explain ALL samples
 X_flat = X.reshape(len(X), T*F)
-shap_values = explainer.shap_values(X_flat, nsamples=100)
+shap_values = explainer.shap_values(X_flat, nsamples=1024)
 
 if isinstance(shap_values, list):
     shap_values = shap_values[0]
@@ -930,6 +956,129 @@ plt.show()
 
 
 
+
+
+
+# ============================================================
+# FEATURE IMPORTANCE for POSITIVE y (with FIXED COLOR SCALE)
+# ============================================================
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1) Compute mean SHAP values restricted to y=1
+mask_pos = (y == 1)
+shap_values_pos = shap_values_3d[mask_pos]  # Shape: (N_pos, T, F)
+feature_time_importance_pos = np.abs(shap_values_pos).mean(axis=0)  # (T, F)
+
+global_min_pos = np.abs(shap_values_pos).mean(axis=0).min()
+global_max_pos = np.abs(shap_values_pos).mean(axis=0).max()
+
+# 2) Feature names
+if len(include_cols) != shap_values_pos.shape[2]:
+    feature_names = [f"Feature_{i}" for i in range(shap_values_pos.shape[2])]
+else:
+    feature_names = include_cols
+
+years = [2009,2010,2011,2012,2013,2014,2015,2016]
+data_mat = feature_time_importance_pos.T   # (F, T)
+
+# 3) Plot heatmap
+plt.figure(figsize=(12, 8))
+cmap = plt.get_cmap('RdBu_r')
+ax = sns.heatmap(data_mat,
+                 xticklabels=years,
+                 yticklabels=feature_names,
+                 cmap=cmap,
+                 vmin=global_max_pos, vmax=global_min_pos,
+                 cbar_kws={'label': 'Mean |SHAP value| (y=1 only)'},
+                 annot=False)
+
+# 4) Add dynamic text annotations
+norm = plt.Normalize(vmin=global_min_pos, vmax=global_max_pos)
+for i in range(data_mat.shape[0]):    # features
+    for j in range(data_mat.shape[1]):  # years
+        val = data_mat[i, j]
+        if not np.isfinite(val): 
+            continue
+        r, g, b, _ = cmap(norm(val))
+        luminance = 0.2126*r + 0.7152*g + 0.0722*b
+        text_color = "white" if luminance < 0.5 else "black"
+        ax.text(j+0.5, i+0.5, f"{val:.3f}",
+                ha="center", va="center",
+                color=text_color, fontsize=8)
+
+plt.xlabel('Year', fontsize=12)
+plt.ylabel('Feature', fontsize=12)
+plt.title('Feature Importance Across Years (SHAP Analysis, y=1 only)', fontsize=14)
+plt.tight_layout()
+plt.savefig('feature_importance_temporal_y1.png', dpi=300, bbox_inches='tight')
+plt.show()
+
+
+
+
+
+
+# ============================================================
+# FEATURE IMPORTANCE for y = 0 (with FIXED COLOR SCALE)
+# ============================================================
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1) Compute mean SHAP values restricted to y=1
+mask_neg = (y == 0)
+shap_values_neg = shap_values_3d[mask_neg]  # Shape: (N_pos, T, F)
+feature_time_importance_neg = np.abs(shap_values_neg).mean(axis=0)  # (T, F)
+
+global_min_neg = np.abs(shap_values_neg).mean(axis=0).min()
+global_max_neg = np.abs(shap_values_neg).mean(axis=0).max()
+
+# 2) Feature names
+if len(include_cols) != shap_values_neg.shape[2]:
+    feature_names = [f"Feature_{i}" for i in range(shap_values_neg.shape[2])]
+else:
+    feature_names = include_cols
+
+years = [2009,2010,2011,2012,2013,2014,2015,2016]
+data_mat = feature_time_importance_neg.T   # (F, T)
+
+# 3) Plot heatmap
+plt.figure(figsize=(12, 8))
+cmap = plt.get_cmap('RdBu_r')
+ax = sns.heatmap(data_mat,
+                 xticklabels=years,
+                 yticklabels=feature_names,
+                 cmap=cmap,
+                 vmin=global_min_neg, vmax=global_max_neg,
+                 cbar_kws={'label': 'Mean |SHAP value| (y=1 only)'},
+                 annot=False)
+
+# 4) Add dynamic text annotations
+norm = plt.Normalize(vmin=global_min_pos, vmax=global_max_pos)
+for i in range(data_mat.shape[0]):    # features
+    for j in range(data_mat.shape[1]):  # years
+        val = data_mat[i, j]
+        if not np.isfinite(val): 
+            continue
+        r, g, b, _ = cmap(norm(val))
+        luminance = 0.2126*r + 0.7152*g + 0.0722*b
+        text_color = "white" if luminance < 0.5 else "black"
+        ax.text(j+0.5, i+0.5, f"{val:.3f}",
+                ha="center", va="center",
+                color=text_color, fontsize=8)
+
+plt.xlabel('Year', fontsize=12)
+plt.ylabel('Feature', fontsize=12)
+plt.title('Feature Importance Across Years (SHAP Analysis, y=0 only)', fontsize=14)
+plt.tight_layout()
+plt.savefig('feature_importance_temporal_y1.png', dpi=300, bbox_inches='tight')
+plt.show()
+
+
+
+
 # ============================================================
 # pearson with visit
 # ============================================================
@@ -983,6 +1132,242 @@ plt.ylabel("Feature", fontsize=12)
 plt.title("Feature–Target Correlation Across Years", fontsize=14)
 plt.tight_layout()
 plt.show()
+
+
+
+
+
+
+
+# ============================================================
+# VIOLIN PLOTS
+# ============================================================
+# Unified split-violin of SHAP for Project_Last_Year across years
+# Horizontal layout (wide, short) and corrected y-axis label.
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.patches import Patch
+
+sns.set_style("whitegrid")
+
+feat = "NGO Allocation to Country, Previous Year"
+feat_idx = include_cols.index(feat)
+
+# Slice SHAP + feature values
+shap_feat = shap_values_3d[:, :, feat_idx]   # (N, T)
+vals_raw  = X[:, :, feat_idx]                # (N, T)
+
+# Rebuild binary 0/1 per year (robust to scaling/standardization)
+vals_bin = np.zeros_like(vals_raw, dtype=int)
+for t in range(vals_raw.shape[1]):
+    col = vals_raw[:, t]
+    u = np.unique(np.round(col, 6))
+    if u.size == 2:
+        vals_bin[:, t] = (col == col.max()).astype(int)
+    else:
+        thr = 0.5 * (col.min() + col.max())
+        vals_bin[:, t] = (col > thr).astype(int)
+
+# Tidy DF
+records = []
+for t, y in enumerate(years):
+    records.append(pd.DataFrame({
+        "Year": y,
+        "SHAP": shap_feat[:, t],
+        feat:  vals_bin[:, t].astype(int)
+    }))
+df = pd.concat(records, ignore_index=True)
+df["Year"] = pd.Categorical(df["Year"], categories=years, ordered=True)
+
+# --- Colors (reuse for violins, legend, and colorful counts)
+PALETTE = {0: "#4C78A8", 1: "#F58518"}
+
+# --- Figure with extra margins for legend (top) and counts (bottom)
+fig, ax = plt.subplots(figsize=(14, 3.6))
+# Slightly larger bottom margin to fit two colored lines of counts
+plt.subplots_adjust(top=0.78, bottom=0.34)
+
+# Split violin
+vp = sns.violinplot(
+    data=df, x="Year", y="SHAP",
+    hue=feat, hue_order=[0, 1],
+    split=True, inner="quartile", cut=0, linewidth=0.8,
+    palette=PALETTE
+)
+
+# Axes
+ax.set_ylim(-0.25, 0.60)
+ax.set_yticks(np.arange(-0.25, 0.61, 0.1))  # <--- new line
+
+ax.axhline(0, color="k", lw=1, ls="--", alpha=0.5)
+ax.set_ylabel("SHAP value (contribution to probability)")
+ax.set_xlabel("Year")
+
+# Colorful counts BELOW the x-axis (two lines, each in its class color)
+counts = df.groupby(["Year", feat]).size().unstack(fill_value=0)
+for i, yr in enumerate(df["Year"].cat.categories):
+    n0 = int(counts.loc[yr, 0]) if 0 in counts.columns else 0
+    n1 = int(counts.loc[yr, 1]) if 1 in counts.columns else 0
+
+    # First line (0=...) a bit higher, second line (1=...) below it
+    ax.text(i, -0.18, f"0={n0}",
+            transform=ax.get_xaxis_transform(),
+            ha="center", va="top", fontsize=9, fontweight="bold",
+            color=PALETTE[0], clip_on=False)
+
+    ax.text(i, -0.28, f"1={n1}",
+            transform=ax.get_xaxis_transform(),
+            ha="center", va="top", fontsize=9, fontweight="bold",
+            color=PALETTE[1], clip_on=False)
+
+# Clean horizontal legend UNDER the title (no overlap)
+handles = [Patch(facecolor=PALETTE[0]), Patch(facecolor=PALETTE[1])]
+labels  = [f"{feat}: 0", f"{feat}: 1"]
+leg = fig.legend(handles, labels,
+                 loc="upper center", bbox_to_anchor=(0.5, 0.93),
+                 ncol=2, frameon=True, title=None)
+
+# Suptitle at the very top
+fig.suptitle(f"{feat}: SHAP distributions across years (0 vs 1)",
+             y=0.99, fontsize=14, fontweight="bold")
+
+plt.savefig("project_last_year_shap_split_violin_colorful_counts.png",
+            dpi=300, bbox_inches="tight")
+plt.show()
+
+
+
+
+
+# ============================================================
+# quartiles
+# ============================================================
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.colors import TwoSlopeNorm
+
+# df: columns ["Year", "SHAP", "Project_Last_Year"]
+# keep your year ordering if needed:
+# df["Year"] = pd.Categorical(df["Year"], categories=years, ordered=True)
+
+q_levels = [0.00, 0.25, 0.50, 0.75, 1.00]
+
+quant_0 = (df[df["NGO Allocation to Country, Previous Year"] == 0]
+           .groupby("Year")["SHAP"].quantile(q_levels).unstack()
+           .rename(columns={0.00:"0", 0.25:"0.25", 0.50:"0.5", 0.75:"0.75", 1.00:"1"})
+           .sort_index())
+
+quant_1 = (df[df["NGO Allocation to Country, Previous Year"] == 1]
+           .groupby("Year")["SHAP"].quantile(q_levels).unstack()
+           .rename(columns={0.00:"0", 0.25:"0.25", 0.50:"0.5", 0.75:"0.75", 1.00:"1"})
+           .sort_index())
+
+# Asymmetric, zero-centered normalization: use full blue range for negatives and full red for positives
+vmin = min(quant_0.min().min(), quant_1.min().min())  # most negative value (~ -0.04)
+vmax = max(quant_0.max().max(), quant_1.max().max())  # most positive value (~ +0.23)
+norm = TwoSlopeNorm(vmin=vmin, vcenter=0.0, vmax=vmax)
+
+cmap = "RdBu_r"
+sns.set_style("white")
+
+fig, axes = plt.subplots(1, 2, figsize=(16, 6), sharex=True, sharey=True)
+plt.subplots_adjust(right=0.90, wspace=0.12)
+
+h0 = sns.heatmap(
+    quant_0, ax=axes[0],
+    cmap=cmap, norm=norm,
+    annot=True, fmt=".3f", linewidths=0, cbar=False,
+    annot_kws={"fontsize":9}
+)
+axes[0].set_title("Quantiles (Project_Last_Year = 0)")
+axes[0].set_xlabel("Quantile")
+axes[0].set_ylabel("Year")
+
+h1 = sns.heatmap(
+    quant_1, ax=axes[1],
+    cmap=cmap, norm=norm,
+    annot=True, fmt=".3f", linewidths=0, cbar=False,
+    annot_kws={"fontsize":9}
+)
+axes[1].set_title("Quantiles (Project_Last_Year = 1)")
+axes[1].set_xlabel("Quantile")
+axes[1].set_ylabel("")
+
+# One shared colorbar in its own axis (won’t cover the right heatmap)
+cbar_ax = fig.add_axes([0.92, 0.20, 0.015, 0.60])
+cb = fig.colorbar(h1.collections[0], cax=cbar_ax)
+cb.set_label("SHAP value (zero-centered)")
+
+for ax in axes:
+    ax.set_xticklabels(["0", "0.25", "0.5", "0.75", "1"], rotation=0)
+
+fig.suptitle("Per-year SHAP Quantiles (split by Project_Last_Year)", y=0.98, fontsize=16)
+plt.savefig("shap_quantiles_split_heatmaps_twoslopnorm.png", dpi=300, bbox_inches="tight")
+plt.show()
+
+
+
+
+
+
+
+# ============================================================
+# Pearson
+# ============================================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
+
+# X: (N=5400, T=8, F=12)
+# If your var is named `x`, just do: X = x
+alloc_idx = 11                     # column 11 = NGO Allocation (prev year)
+A = X[:, :, alloc_idx]             # shape (N, T) → values of that feature over years
+
+T = A.shape[1]
+corr = np.empty((T, T), dtype=float)
+
+# Pearson correlation across years (computed over the N samples)
+for i in range(T):
+    xi = A[:, i]
+    for j in range(T):
+        xj = A[:, j]
+        if np.std(xi) == 0 or np.std(xj) == 0:
+            corr[i, j] = np.nan     # undefined if a column is constant
+        else:
+            corr[i, j] = pearsonr(xi, xj)[0]
+
+# --- Plot heatmap ---
+years = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]  # adjust if needed
+fig, ax = plt.subplots(figsize=(6, 5))
+im = ax.imshow(corr, vmin=-1, vmax=1)
+
+ax.set_xticks(range(T)); ax.set_yticks(range(T))
+ax.set_xticklabels(years, rotation=45, ha="right")
+ax.set_yticklabels(years)
+ax.set_title("NGO Allocation (prev year): Pearson correlation across years")
+plt.colorbar(im, ax=ax, label="Pearson r")
+
+# annotate cells
+for i in range(T):
+    for j in range(T):
+        txt = "nan" if np.isnan(corr[i, j]) else f"{corr[i, j]:.2f}"
+        ax.text(j, i, txt, ha="center", va="center", fontsize=8)
+
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+
+
+
 
 
 # ============================================================
@@ -1144,99 +1529,7 @@ plt.tight_layout()
 plt.show()
 
 
-# ============================================================
-# FEATURE IMPORTANCE for POSITIVE y (with FIXED COLOR SCALE)
-# ============================================================
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-# 1) Compute mean SHAP values restricted to y=1
-mask_pos = (y == 1)
-shap_values_pos = shap_values_3d[mask_pos]  # Shape: (N_pos, T, F)
-feature_time_importance_pos = np.abs(shap_values_pos).mean(axis=0)  # (T, F)
-
-# 2) Feature names
-if len(include_cols) != shap_values_pos.shape[2]:
-    feature_names = [f"Feature_{i}" for i in range(shap_values_pos.shape[2])]
-else:
-    feature_names = include_cols
-
-years = [2009,2010,2011,2012,2013,2014,2015,2016]
-data_mat = feature_time_importance_pos.T   # (F, T)
-
-# 3) Plot heatmap
-plt.figure(figsize=(12, 8))
-cmap = plt.get_cmap('RdBu_r')
-ax = sns.heatmap(data_mat,
-                 xticklabels=years,
-                 yticklabels=feature_names,
-                 cmap=cmap,
-                 vmin=global_min, vmax=global_max,
-                 cbar_kws={'label': 'Mean |SHAP value| (y=1 only)'},
-                 annot=False)
-
-# 4) Add dynamic text annotations
-norm = plt.Normalize(vmin=global_min, vmax=global_max)
-for i in range(data_mat.shape[0]):    # features
-    for j in range(data_mat.shape[1]):  # years
-        val = data_mat[i, j]
-        if not np.isfinite(val): 
-            continue
-        r, g, b, _ = cmap(norm(val))
-        luminance = 0.2126*r + 0.7152*g + 0.0722*b
-        text_color = "white" if luminance < 0.5 else "black"
-        ax.text(j+0.5, i+0.5, f"{val:.3f}",
-                ha="center", va="center",
-                color=text_color, fontsize=8)
-
-plt.xlabel('Year', fontsize=12)
-plt.ylabel('Feature', fontsize=12)
-plt.title('Feature Importance Across Years (SHAP Analysis, y=1 only)', fontsize=14)
-plt.tight_layout()
-plt.savefig('feature_importance_temporal_y1.png', dpi=300, bbox_inches='tight')
-plt.show()
-
-
-
-
-
-# ============================================================
-# FEATURE IMPORTANCE for NEGATIVE y (with FIXED COLOR SCALE)
-# ============================================================
-
-# Mask SHAP values to keep only y = 0 cases
-mask_pos = (y == 0)
-shap_values_pos = shap_values_3d[mask_pos]  # Shape: (N_pos, T, F)
-
-# Calculate importance for each feature at each year (restricted to y=1)
-feature_time_importance_pos = np.abs(shap_values_pos).mean(axis=0)  # Shape: (T, F)
-
-# Create feature names
-if len(include_cols) != shap_values_pos.shape[2]:
-    feature_names = [f"Feature_{i}" for i in range(shap_values_pos.shape[2])]
-else:
-    feature_names = include_cols
-
-years = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
-
-# Plot heatmap for positives
-plt.figure(figsize=(12, 8))
-
-sns.heatmap(feature_time_importance_pos.T,
-            xticklabels=years,
-            yticklabels=feature_names,
-            cmap='RdBu_r',
-            vmin=global_min, vmax=global_max,   # <<< keep fixed global scale
-            cbar_kws={'label': 'Mean |SHAP value| (y=1 only)'},
-            fmt='.3f')
-
-plt.xlabel('Year', fontsize=12)
-plt.ylabel('Feature', fontsize=12)
-plt.title('Feature Importance Across Years (SHAP Analysis, y=1 only)', fontsize=14)
-plt.tight_layout()
-plt.savefig('feature_importance_temporal_y1.png', dpi=300, bbox_inches='tight')
-plt.show()
 
 
 
@@ -1343,173 +1636,6 @@ print("\nSHAP base value (expected prediction):", float(np.asarray(base_val)))
 
 
 
-
-# ============================================================
-# VIOLIN PLOTS
-# ============================================================
-# Unified split-violin of SHAP for Project_Last_Year across years
-# Horizontal layout (wide, short) and corrected y-axis label.
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.patches import Patch
-
-sns.set_style("whitegrid")
-
-feat = "Project_Last_Year"
-feat_idx = include_cols.index(feat)
-
-# Slice SHAP + feature values
-shap_feat = shap_values_3d[:, :, feat_idx]   # (N, T)
-vals_raw  = X[:, :, feat_idx]                # (N, T)
-
-# Rebuild binary 0/1 per year (robust to scaling/standardization)
-vals_bin = np.zeros_like(vals_raw, dtype=int)
-for t in range(vals_raw.shape[1]):
-    col = vals_raw[:, t]
-    u = np.unique(np.round(col, 6))
-    if u.size == 2:
-        vals_bin[:, t] = (col == col.max()).astype(int)
-    else:
-        thr = 0.5 * (col.min() + col.max())
-        vals_bin[:, t] = (col > thr).astype(int)
-
-# Tidy DF
-records = []
-for t, y in enumerate(years):
-    records.append(pd.DataFrame({
-        "Year": y,
-        "SHAP": shap_feat[:, t],
-        feat:  vals_bin[:, t].astype(int)
-    }))
-df = pd.concat(records, ignore_index=True)
-df["Year"] = pd.Categorical(df["Year"], categories=years, ordered=True)
-
-# --- Colors (reuse for violins, legend, and colorful counts)
-PALETTE = {0: "#4C78A8", 1: "#F58518"}
-
-# --- Figure with extra margins for legend (top) and counts (bottom)
-fig, ax = plt.subplots(figsize=(14, 3.6))
-# Slightly larger bottom margin to fit two colored lines of counts
-plt.subplots_adjust(top=0.78, bottom=0.34)
-
-# Split violin
-vp = sns.violinplot(
-    data=df, x="Year", y="SHAP",
-    hue=feat, hue_order=[0, 1],
-    split=True, inner="quartile", cut=0, linewidth=0.8,
-    palette=PALETTE
-)
-
-# Axes
-ax.set_ylim(-0.05, 0.25)
-ax.set_yticks(np.arange(-0.05, 0.26, 0.05))  # <--- new line
-
-ax.axhline(0, color="k", lw=1, ls="--", alpha=0.5)
-ax.set_ylabel("SHAP value (contribution to probability)")
-ax.set_xlabel("Year")
-
-# Colorful counts BELOW the x-axis (two lines, each in its class color)
-counts = df.groupby(["Year", feat]).size().unstack(fill_value=0)
-for i, yr in enumerate(df["Year"].cat.categories):
-    n0 = int(counts.loc[yr, 0]) if 0 in counts.columns else 0
-    n1 = int(counts.loc[yr, 1]) if 1 in counts.columns else 0
-
-    # First line (0=...) a bit higher, second line (1=...) below it
-    ax.text(i, -0.18, f"0={n0}",
-            transform=ax.get_xaxis_transform(),
-            ha="center", va="top", fontsize=9, fontweight="bold",
-            color=PALETTE[0], clip_on=False)
-
-    ax.text(i, -0.28, f"1={n1}",
-            transform=ax.get_xaxis_transform(),
-            ha="center", va="top", fontsize=9, fontweight="bold",
-            color=PALETTE[1], clip_on=False)
-
-# Clean horizontal legend UNDER the title (no overlap)
-handles = [Patch(facecolor=PALETTE[0]), Patch(facecolor=PALETTE[1])]
-labels  = [f"{feat}: 0", f"{feat}: 1"]
-leg = fig.legend(handles, labels,
-                 loc="upper center", bbox_to_anchor=(0.5, 0.93),
-                 ncol=2, frameon=True, title=None)
-
-# Suptitle at the very top
-fig.suptitle(f"{feat}: SHAP distributions across years (0 vs 1)",
-             y=0.99, fontsize=14, fontweight="bold")
-
-plt.savefig("project_last_year_shap_split_violin_colorful_counts.png",
-            dpi=300, bbox_inches="tight")
-plt.show()
-
-
-# ============================================================
-# quartiles
-# ============================================================
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.colors import TwoSlopeNorm
-
-# df: columns ["Year", "SHAP", "Project_Last_Year"]
-# keep your year ordering if needed:
-# df["Year"] = pd.Categorical(df["Year"], categories=years, ordered=True)
-
-q_levels = [0.00, 0.25, 0.50, 0.75, 1.00]
-
-quant_0 = (df[df["Project_Last_Year"] == 0]
-           .groupby("Year")["SHAP"].quantile(q_levels).unstack()
-           .rename(columns={0.00:"0", 0.25:"0.25", 0.50:"0.5", 0.75:"0.75", 1.00:"1"})
-           .sort_index())
-
-quant_1 = (df[df["Project_Last_Year"] == 1]
-           .groupby("Year")["SHAP"].quantile(q_levels).unstack()
-           .rename(columns={0.00:"0", 0.25:"0.25", 0.50:"0.5", 0.75:"0.75", 1.00:"1"})
-           .sort_index())
-
-# Asymmetric, zero-centered normalization: use full blue range for negatives and full red for positives
-vmin = min(quant_0.min().min(), quant_1.min().min())  # most negative value (~ -0.04)
-vmax = max(quant_0.max().max(), quant_1.max().max())  # most positive value (~ +0.23)
-norm = TwoSlopeNorm(vmin=vmin, vcenter=0.0, vmax=vmax)
-
-cmap = "RdBu_r"
-sns.set_style("white")
-
-fig, axes = plt.subplots(1, 2, figsize=(16, 6), sharex=True, sharey=True)
-plt.subplots_adjust(right=0.90, wspace=0.12)
-
-h0 = sns.heatmap(
-    quant_0, ax=axes[0],
-    cmap=cmap, norm=norm,
-    annot=True, fmt=".3f", linewidths=0, cbar=False,
-    annot_kws={"fontsize":9}
-)
-axes[0].set_title("Quantiles (Project_Last_Year = 0)")
-axes[0].set_xlabel("Quantile")
-axes[0].set_ylabel("Year")
-
-h1 = sns.heatmap(
-    quant_1, ax=axes[1],
-    cmap=cmap, norm=norm,
-    annot=True, fmt=".3f", linewidths=0, cbar=False,
-    annot_kws={"fontsize":9}
-)
-axes[1].set_title("Quantiles (Project_Last_Year = 1)")
-axes[1].set_xlabel("Quantile")
-axes[1].set_ylabel("")
-
-# One shared colorbar in its own axis (won’t cover the right heatmap)
-cbar_ax = fig.add_axes([0.92, 0.20, 0.015, 0.60])
-cb = fig.colorbar(h1.collections[0], cax=cbar_ax)
-cb.set_label("SHAP value (zero-centered)")
-
-for ax in axes:
-    ax.set_xticklabels(["0", "0.25", "0.5", "0.75", "1"], rotation=0)
-
-fig.suptitle("Per-year SHAP Quantiles (split by Project_Last_Year)", y=0.98, fontsize=16)
-plt.savefig("shap_quantiles_split_heatmaps_twoslopnorm.png", dpi=300, bbox_inches="tight")
-plt.show()
 
 
 

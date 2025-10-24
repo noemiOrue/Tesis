@@ -38,7 +38,7 @@ data['ODA Grants Spain']   = np.log1p(data['ODA Grants Spain'])
 
 
 
-avoid_cols = ["Country_Year", 'NGO', 'Country', 'Year', 'Visitado','RuleofLaw','RegulatoryQuality','GovernmentEffectiveness','VoiceandAccountability','generic','cumulative_path_dependence',"NGO Allocation to Country, Previous Year"]
+avoid_cols = ["Country_Year", 'NGO', 'Country', 'Year', 'Visitado','RuleofLaw','RegulatoryQuality','GovernmentEffectiveness','VoiceandAccountability','generic','cumulative_path_dependence',"NGO Allocation to Country ($), Previous Year"]
 include_cols = [c for c in data.columns if c not in avoid_cols and c not in ['Budget_Previous_Year']]
 #include_cols = [c for c in data.columns if c not in avoid_cols and c not in ['Project_Last_Year']]
 
@@ -129,9 +129,6 @@ y = np.array(y_list, dtype=np.int64)
 np.sum(y==1)
 
 
-X[:, 0:5, :] = 0
-#X[:, 6:8, :] = 0
-
 
 # ============================================================
 # HYPERPARAMETERS - MODIFY THESE FOR MANUAL SEARCH
@@ -165,38 +162,36 @@ THRESHOLD = 0.5
 # ============================================================
 # MODEL DEFINITION
 # ============================================================
-class LSTMWithAttention(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, dropout, attention_ratio):
+class LSTMNoAttention(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, dropout):
+        """
+        attention_ratio is ignored (kept only for config compatibility).
+        """
         super().__init__()
         self.lstm = nn.LSTM(
-            input_size,
-            hidden_size,
+            input_size=input_size,
+            hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
             dropout=dropout if num_layers > 1 else 0.0,
             bidirectional=False,
         )
-        # Attention
-        if attention_ratio and attention_ratio > 0:
-            self.attn = nn.Sequential(
-                nn.Linear(hidden_size, max(1, hidden_size // attention_ratio)),
-                nn.Tanh(),
-                nn.Linear(max(1, hidden_size // attention_ratio), 1),
-            )
-        else:
-            self.attn = nn.Linear(hidden_size, 1)
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_size, 1)
 
     def forward(self, x, return_attention=False):
-        lstm_out, _ = self.lstm(x)                  # (B, T, H)
-        scores = self.attn(lstm_out)                # (B, T, 1)
-        weights = torch.softmax(scores, dim=1)      # (B, T, 1)
-        context = torch.sum(weights * lstm_out, dim=1)  # (B, H)
-        context = self.dropout(context)
-        logits = self.fc(context)                   # (B, 1)
+        """
+        Uses the last hidden state from the top LSTM layer as the sequence representation.
+        Returns (logits, None) if return_attention=True to preserve caller expectations.
+        """
+        # x: (B, T, F)
+        _, (h_n, _) = self.lstm(x)        # h_n: (num_layers, B, H)
+        h_last = h_n[-1]                  # (B, H) last layer's final state
+        h_last = self.dropout(h_last)
+        logits = self.fc(h_last)          # (B, 1)
+
         if return_attention:
-            return logits, weights
+            return logits, None
         return logits
 
 
@@ -296,12 +291,11 @@ def train_one_fold(
     )
 
     # Model
-    model = LSTMWithAttention(
+    model = LSTMNoAttention(
         input_size=X_np.shape[2],
         hidden_size=cfg["HIDDEN_SIZE"],
         num_layers=cfg["NUM_LAYERS"],
         dropout=cfg["DROPOUT"],
-        attention_ratio=ATTENTION_HIDDEN_RATIO,
     ).to(device)
 
     # Loss (train objective)
@@ -573,12 +567,11 @@ full_dataset = TensorDataset(X_full, y_full)
 full_loader  = DataLoader(full_dataset, batch_size=BEST_BATCH_SIZE, shuffle=True)
 
 # ---- Reinitialize model with best architecture ----
-final_model = LSTMWithAttention(
+final_model = LSTMNoAttention(
     input_size=X_full.shape[2],
     hidden_size=BEST_HIDDEN_SIZE,
     num_layers=BEST_NUM_LAYERS,
     dropout=BEST_DROPOUT,
-    attention_ratio=ATTENTION_HIDDEN_RATIO
 ).to(device)
 
 # ---- Criterion with class weights computed on FULL data ----
